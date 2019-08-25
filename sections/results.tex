@@ -1,10 +1,11 @@
+% !TEX root = ../main.tex
 \section*{Results}\label{sec:results}
 
-Here we present the main results of the work. These are the new efficient gradient based training methods, and the hardness of classical simulation of the model. Firstly we define the model we use, and it's connection to previously known quantum circuit families. In the next section, we discuss the efficient training of the model, firstly recalling the previous gradient based training method, the $\MMD$, and then moving onto our new training methods using the Stein discrepancy and the Sinkhorn divergence in the following sections. We then discuss the Sinkhorn divergence complexity in detail, and further argue why it should be used, based on its connection to Total Variation distance. In the next section, we then prove the hardness results mentioned above; that many circuits encountered during gradient based training are hard to classically simulate. In the next section, we discuss the potential ability of quantum generative models to learn distributions which are intractable to classical models, and provide a framework to study these advantages.
+Here we present the main results of the work. These are the new efficient gradient-based training methods, and the hardness of classical simulation of the model. Firstly we define the model we use, and its connection to previously known quantum circuit families. In the next section, we discuss the efficient training of the model, firstly recalling a previously known gradient-based training method, using the $\MMD$ cost function, and then moving onto our new training methods using the Stein discrepancy and the Sinkhorn divergence in the following sections. We then discuss the Sinkhorn divergence complexity in detail, and further argue why it should be used, based on its connection to Total Variation distance. In the next section, we then prove the hardness results mentioned above; that many circuits encountered during gradient based training are hard to classically simulate. In the next section, we discuss the potential ability of quantum generative models to learn distributions which are intractable to classical models, and provide a framework to study these advantages.
 
 
 \subsection*{Ising Born Machine}
-Firstly, we define the model we use for distribution learning. A generic Born machine consists of a parameterised quantum circuit producing samples as a result of measurements, and a classical optimisation loop to train the model to learn a data distribution. The circuit describing the model we study is given by the following structure:
+Firstly, we define the model we use for distribution learning. A generic Born machine consists of a parameterised quantum circuit producing samples as a result of measurements, and a classical optimisation loop to train the model to learn a data distribution. The circuits we study have the following structure:
 \begin{small}
 \begin{align*}
     \Qcircuit @C=0.6em @R=0.8em {
@@ -17,7 +18,7 @@ Firstly, we define the model we use for distribution learning. A generic Born ma
 \end{small}
 
 
-\noindent where we $x_i \in \{0, 1\} ~ \forall i$ and the unitaries are defined by \eqref{diagonalunitary}, \eqref{finalmeasurementgate}, where $S_j$ indicates the subset of qubits on which each operator, $j$, is applied. A boldface parameter indicates a set of parameters, $\boldsymbol\alpha = \{\alpha_j\}$.
+\noindent where $x_i \in \{0, 1\}$ and the unitaries are defined by \eqref{diagonalunitary} and \eqref{finalmeasurementgate}, where $S_j$ indicates the subset of qubits on which each operator, $j$, is applied. A boldface parameter indicates a set of parameters, $\boldsymbol\alpha = \{\alpha_j\}$.
 \begin{align}
   &U_z(\boldsymbol\alpha) \coloneqq  \prod_j U_z \left( \alpha_j, S_j \right) = \prod_j\exp \left( i \alpha_j \bigotimes_{k \in S_j} Z_k \right)\label{diagonalunitary}\\
     &U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) \coloneqq \exp\left(i\sum\limits_{k=1}^n \Gamma_k X_k + \Delta_k Y_k +\Sigma_k Z_k\right)    \label{finalmeasurementgate}
@@ -30,24 +31,30 @@ Restricting to the case $|S_j| \leq 2$ (since only single and two-qubit gates ar
  \end{align}
 
 
-\noindent where we are dividing the diagonal unitary parameters,  $\boldsymbol{\alpha} = \{J_{ij}, b_k\}$,  into local terms which act only on qubit $k$, $\{b_k\}$, and coupling terms between two qubits $i$ and $j$, $\{J_{ij}\}$. As such, for convenience, we call the model an \textit{Ising} Born machine ($\IBM$).
+\noindent where we are dividing the diagonal unitary parameters,  $\boldsymbol{\alpha} = \{J_{ij}, b_k\}$,  into local terms which act only on qubit $k$, $\{b_k\}$, and coupling terms between two qubits $i$ and $j$, $\{J_{ij}\}$. We call the model an \textit{Ising} Born machine ($\IBM$).
 A measurement on all qubits in the computational basis results in sample vectors, $\mathbf{x} \in \mathcal{X}^n$, where $\mathbf{x}$ is a binary vector of length $n$, and $\mathcal{X} = \{0, 1\}$. These samples are drawn from the following distribution, $p_{\boldsymbol\theta}(\mathbf{x})$, parameterised by a set of angles, $\boldsymbol\theta = \{\boldsymbol\alpha, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma}\}$:
 \begin{align}
     p_{\boldsymbol\theta}(\mathbf{x}) \coloneqq \left|\bra{\mathbf{x}}U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) U_z(\boldsymbol\alpha)\ket{+}^{\otimes n}\right|^2
 \end{align}
-We denote the above model and parameters by $\IBM(\boldsymbol\alpha, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma})$. We choose this structure in order to easily recover two more well known circuit classes, namely Instantaneous Quantum Polynomial Time\cite{shepherd_temporally_2009} ($\IQP$) circuits, and the shallowest depth ($p=1$) version of the Quantum Approximate Optimisation Algorithm\cite{farhi_quantum_2014}, ($\QAOA$). $\IQP$ circuits are named due to the commuting structure of the unitary $U_z$,  and $\QAOA$\cite{farhi_quantum_2014} was originally developed as an approximate gate based version of the Quantum Adiabatic Algorithm\cite{farhi_quantum_2000}. Both of these classes of circuits, are known to demonstrate quantum supremacy to varying degrees\cite{bremner_classical_2011, bremner_average-case_2016, farhi_quantum_2016, bremner_achieving_2017}, which we will extend here, using the results of ref.\cite{fujii_commuting_2017}.
+We denote the above model and parameters by $\IBM(\boldsymbol\alpha, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma})$. We choose this structure in order to easily recover two more well known circuit classes, namely Instantaneous Quantum Polynomial Time\cite{shepherd_temporally_2009} ($\IQP$) circuits, and the shallowest depth ($p=1$) version of the Quantum Approximate Optimisation Algorithm\cite{farhi_quantum_2014}, ($\QAOA$). $\IQP$ circuits are named due to the commuting structure of the unitary $U_z$,  and $\QAOA$\cite{farhi_quantum_2014} was originally developed as an approximate version of the Quantum Adiabatic Algorithm\cite{farhi_quantum_2000}. Both of these classes of circuits, are known to demonstrate quantum supremacy to varying degrees\cite{bremner_classical_2011, bremner_average-case_2016, farhi_quantum_2016, bremner_achieving_2017}, which we will extend here, using the results of ref.\cite{fujii_commuting_2017}.
 
 These classes can be recovered by setting the parameters of an $\IBM$ as follows:
 
 %\begin{multline}
 %    IBM\left(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} \\ = \left\{\frac{\pi}{2\sqrt{2}}\right\}, \mathbf{0}, \mathbf{\Sigma}=  \left\{\frac{\pi}{2\sqrt{2}}\right\}\right) = \IQP(\{J_{ij}, b_{k}\})
 %\end{multline}
-\begin{multline}
-    \IBM\left(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} = \left\{\frac{\pi}{2\sqrt{2}}\right\}, \mathbf{0}, \mathbf{\Sigma}=  \left\{\frac{\pi}{2\sqrt{2}}\right\}\right) \\= \IQP(\{J_{ij}, b_{k}\})\\
-    \IBM\left(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} = -\mathbf{\Gamma}, \mathbf{0} , \mathbf{0}\right)\\ = \QAOA_{p=1}(\{J_{ij}, b_{k}\}, \mathbf{\Gamma}) \nonumber
-\end{multline}
+\[
+\begin{array}{lll}
+\IQP(\{J_{ij}, b_{k}\}) =\\
+\IBM\left(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} = \left\{\frac{\pi}{2\sqrt{2}}\right\}, \mathbf{0}, \mathbf{\Sigma}=  \left\{\frac{\pi}{2\sqrt{2}}\right\}\right) 
+\\{}\\
+\QAOA_{p=1}(\{J_{ij}, b_{k}\}, \mathbf{\Gamma}) =
+\\
+\IBM\left(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} = -\mathbf{\Gamma}, \mathbf{0} , \mathbf{0}\right)
+\end{array}
+\]
 
-\noindent We choose the final gate before the computational basis measurement to be in the form of \eqref{finalmeasurementgate}, rather than the more common euler decomposition of a single qubit gate decomposition found in the literature\cite{liu_differentiable_2018, du_expressive_2018} This is chosen to make the classical simulation hardness results more apparent in our proofs.
+\noindent We choose the final gate before the computational basis measurement to be in the form of \eqref{finalmeasurementgate}, rather than the more common Euler decomposition of a single qubit gate decomposition found in the literature\cite{liu_differentiable_2018, du_expressive_2018}. This is chosen to make the classical simulation hardness results more apparent in our proofs.
 
 \subsection*{Training the Ising Born Machine}
 
@@ -65,16 +72,20 @@ These classes can be recovered by setting the parameters of an $\IBM$ as follows
             \caption{Hybrid training procedures we propose in this work. We have a quantum generator, along with auxiliary circuits used to compute the gradient of the various cost functions with respect to the parameters. Also, another quantum circuit can be run to evaluate the quantum kernel which is fed into the either the Stein discrepancy cost function, or the $\MMD$. For the Sinkhorn divergence, a cost function is evaluated instead.}\label{fig:ibmtraining}
 \end{figure*}
 
-Next, we introduce the alternative training methods we use which in fact are applicable to any generative model. The training procedure is a classical quantum hybrid, where the only quantum component is the model itself, and the rest of the computation is classical, which is as close to the capabilities of NISQ devices as possible. This can be seen in \figref{fig:ibmtraining}. The optimisation procedures we implement are stochastic gradient descent, which uses the following update rule for the parameters, $\theta_k$, for each epoch of training, $d$, $\theta^{d+1}_k \leftarrow \theta_k^{d} - \eta \partial_{\theta^{d}_k}\mathcal{L}_B$. The parameter $\eta$ is the learning rate, and controls the speed of the descent. The initial proposals to train BMs were gradient-free\cite{benedetti_generative_2019, leyton-ortega_robust_2019}, but these tend to perform poorly in large parameter spaces and have shown to be outperformed by gradient based methods for Born Machines\cite{liu_differentiable_2018, du_expressive_2018}. In this work, we advocate for increasing the classical computational power required in training to achieve better performance, rather than increasing the quantum resources, for example by adding extra ancillae\cite{du_expressive_2018} or adding costly and potentially unstable (quantum) adversaries\cite{zeng_learning_2018, lloyd_quantum_2018, dallaire-demers_quantum_2018}. 
+Next, we introduce the alternative training methods we use which in fact are applicable to any generative model. The training procedure is a classical quantum hybrid, where the only quantum component is the model itself, and the rest of the computation is classical, which is as close to the capabilities of NISQ devices as possible. This can be seen in \figref{fig:ibmtraining}. The optimisation procedures we implement are stochastic gradient descents which use the following update rule for the parameters, $\theta_k$, for each epoch of training, $d$, $\theta^{d+1}_k \leftarrow \theta_k^{d} - \eta\, \partial_{\theta_k}\mathcal{L}_B$. The parameter $\eta$ is the learning rate, and controls the speed of the descent. The initial proposals to train BMs were gradient-free\cite{benedetti_generative_2019, leyton-ortega_robust_2019}, but these %tend to perform poorly in large parameter spaces and 
+have shown to be outperformed by gradient methods for Born Machines\cite{liu_differentiable_2018, du_expressive_2018}. In this work, we advocate for increasing the classical computational power required in training to achieve better performance, rather than increasing the quantum resources, for example by adding extra ancillae\cite{du_expressive_2018} or adding costly and potentially unstable (quantum) adversaries\cite{zeng_learning_2018, lloyd_quantum_2018, dallaire-demers_quantum_2018}. 
 
-For gradient based methods, some \textit{cost function} or metric is required, $\mathcal{L}_B\left(p_{\boldsymbol\theta}(\mathbf{x}), \pi(\mathbf{y})\right)$ to compare between the Born Machine distribution, $p_{\boldsymbol\theta}(\mathbf{x})$, the data distribution, $\pi(\mathbf{y})$. Good cost functions will have several characteristics. They should be as efficient to compute as possible, both in terms of sample and computational complexity. They should also be powerful, in the sense that they are sensitive to differences between the two distributions. In this work, we centre our ideas around the total variation ($\TV$) metric:
+For gradient-based methods, some \textit{cost function} or metric is required, $\mathcal{L}_B\left(p_{\boldsymbol\theta}(\mathbf{x}), \pi(\mathbf{y})\right)$ to compare between the Born Machine distribution, $p_{\boldsymbol\theta}(\mathbf{x})$, the data distribution, $\pi(\mathbf{y})$. Good cost functions will have several characteristics. They should be as efficient to compute as possible, both in terms of sample and computational complexity. They should also be powerful, in the sense that they are sensitive to differences between the two distributions. In this work, we will assess sensitivity by using %centre our ideas around 
+the total variation ($\TV$) metric as a benchmark:
 \begin{align}
     \TV(p_{\boldsymbol\theta}, \pi) \coloneqq \frac{1}{2}\sum_{\mathbf{x}}|p_{\boldsymbol\theta}(\mathbf{x}) - \pi(\mathbf{x})| \label{total_variation}
 \end{align}
 
 \noindent This is a particularly strong metric, in the sense that convergence in $\TV$ is one of the strongest notions of convergence in probability. The cost functions we use are typically easier to deal with than $\TV$, and we remark on their connections. One of the most common cost functions used to train generative models is the Kullback-Leibler ($\KL$) divergence. The $\KL$ divergence is also relatively strong, in the sense that it upper bounds $\TV$ through Pinsker's inequality. Unfortunately, this means it is difficult to compute in terms of sample complexity; neither its gradient, nor the $\KL$ divergence itself can be evaluated efficiently when training parameterised circuits \cite{liu_differentiable_2018}.
 
-The first efficient gradient method to train Born machines was proposed by ref.\cite{liu_differentiable_2018}. The key realisation is that the $\KL$ divergence is perhaps \textit{too strong} of a cost function, and we must settle for a weaker one. The idea is to use the \textit{maximum mean discrepancy} ($\MMD$) and we extend this methodology in two ways. The first is an improvement to the $\MMD$ itself, and the second is by introducing alternative cost functions. From the $\MMD$, the following cost function\cite{borgwardt_integrating_2006, gretton_kernel_2007} can be defined:
+The first efficient gradient method to train Born machines was proposed by ref.\cite{liu_differentiable_2018}. 
+%The key realisation is that the $\KL$ divergence is perhaps \textit{too strong} of a cost function, and we must settle for a weaker one. 
+The idea is to use the \textit{maximum mean discrepancy} ($\MMD$) to define the cost function. We extend this methodology in two ways. The first is an improvement to the $\MMD$ itself, and the second is by introducing alternative cost functions. From the $\MMD$, the following cost function\cite{borgwardt_integrating_2006, gretton_kernel_2007} can be defined:
 \begin{align}
    \mathcal{L}_{\MMD} & \coloneqq \underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta}\\ \mathbf{y} \sim p_{\boldsymbol\theta}}}{\mathbb{E}}(\kappa(\mathbf{x},\mathbf{y})) + \underset{\substack{\mathbf{x} \sim \pi \\\mathbf{y} \sim \pi }}{\mathbb{E}}(\kappa(\mathbf{x},\mathbf{y})) -\underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta}\\ \mathbf{y} \sim \pi}}{2\mathbb{E}}(\kappa(\mathbf{x},\mathbf{y})) \label{mmdexact}
 \end{align}
@@ -86,11 +97,11 @@ The first efficient gradient method to train Born machines was proposed by ref.\
 
 The parameters, $\sigma_i$, are \emph{bandwidths} which determine the scale at which the samples are compared, and $||\cdot||_2$ is the $\ell_2$ norm.
 
-A key realisation of recent works\cite{havlicek_supervised_2019, schuld_supervised_2018} of how to gain near term advantages using quantum computers in QML is to explore \textit{quantum} kernels, which can be evaluated on a quantum computer. To gain such an advantage, these kernels should be difficult to compute on a classical device. To the best of our knowledge, we are the first to investigate the possibility of introducing quantum kernels to generative modelling.
+A key realisation of recent works\cite{havlicek_supervised_2019, schuld_supervised_2018} of how to gain near term advantages using quantum computers in QML is to explore \textit{quantum} kernels, which can be evaluated on a quantum computer. To gain such an advantage, these kernels should be difficult to compute on a classical device. To the best of our knowledge, we are the first to investigate the use of quantum kernels for generative modelling.
 
 In particular, we will adopt the following kernel\cite{havlicek_supervised_2019} in which the samples are encoded in a particular quantum state, $\ket{\phi(\mathbf{x})}$, via a \textit{feature map}, $\phi:\mathbf{x}\rightarrow \ket{\phi({\mathbf{x}})}$ and the kernel is the inner product between different vectors:
 \begin{align}
-    \kappa_Q(\mathbf{x}, \mathbf{y}) \coloneqq  |\braket{\Phi(\mathbf{x})|\Phi(\mathbf{y})}|^2 \label{quantumkernel}
+    \kappa_Q(\mathbf{x}, \mathbf{y}) \coloneqq  |\braket{\phi(\mathbf{x})|\phi(\mathbf{y})}|^2 \label{quantumkernel}
 \end{align}
 
 \noindent The inner product, \eqref{quantumkernel}, is evaluated on a quantum computer, and is conjectured to be hard to compute on a classical one\cite{havlicek_supervised_2019}, given only a classical description of the quantum states.  The state $\ket{\phi(\mathbf{x})}$ is produced with an encoding unitary on an initial state, $\ket{\phi(\mathbf{x})} = \mathcal{U}_{\phi(\mathbf{x})}\ket{0}^{\otimes n}$.
@@ -101,7 +112,8 @@ The next required ingredient is the gradient of the cost function. For the $\MMD
     - \underset{\substack{\mathbf{a} \sim p^-_{\theta_k}\\ \mathbf{y} \sim \pi}}{2\mathbb{E}}(\kappa(\mathbf{a}, \mathbf{y}))  +\underset{\substack{\mathbf{b} \sim p^+_{\theta_k}\\ \mathbf{y} \sim \pi}}{2\mathbb{E}}(\kappa(\mathbf{b}, \mathbf{y}))\label{mmdgradient}
 \end{multline}
 
-\noindent where $p^{\pm}_{\theta_k}$ are generated by running the following auxiliary circuits\cite{mitarai_quantum_2018, schuld_evaluating_2018} \textit{for each} unitary, $k$:
+\noindent where $p^{\pm}_{\theta_k}$ are generated by running the following auxiliary circuits\cite{mitarai_quantum_2018, schuld_evaluating_2018} \textit{for each} 
+unitary gate, $U_k(\theta_k)$:
 
 \begin{align}
 \Qcircuit @C=0.5em @R=1em {
@@ -110,7 +122,11 @@ The next required ingredient is the gradient of the cost function. For the $\MMD
 \label{circuit:gradientplusminuscircuit}
 \end{align}
 
-\noindent The notation of the $k^{th}$ parameter by a factor of $\pm\pi/2$ only, relative to the original parameterised circuit. A similar form of the gradient holds for the other cost functions we analyse, which require the parameter shifted circuits in \eqref{circuit:gradientplusminuscircuit} to be executed. For more details on kernel methods and the $\MMD$, see \appref{supp_matt:kernelmethods_mmd}.
+\noindent 
+where $\theta_k^{\pm}:=\theta_k \pm\pi/2$. 
+%notation of the $k^{th}$ parameter by a factor of $\pm\pi/2$ only, relative to the original parameterised circuit. 
+The gradients of the cost functions which we introduce next 
+will also include the parameter-shifted circuits in \eqref{circuit:gradientplusminuscircuit}. For more details on kernel methods and the $\MMD$, see \appref{supp_matt:kernelmethods_mmd}.
 
 \begin{figure*}[ht]
     \centering
