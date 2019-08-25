@@ -235,7 +235,7 @@ $\OT$, when the cost, $c$, is chosen to be a metric on the space of $\mathcal{X}
 
 We would like to use $\OT$ \textit{itself} to train generative models, due to its metric properties. Unfortunately, $\OT$ has high computational cost and exponential sample complexity\cite{dudley_speed_1969}. For this reason, the Sinkhorn divergence was proposed in refs. \cite{ramdas_wasserstein_2015, genevay_learning_2017, feydy_interpolating_2018} to \textit{interpolate} between $\OT$ and the $\MMD$ as a function of the regularisation parameter, $\epsilon$ in \eqref{wassersteinregularised}. In particular, for the two extreme values for $\epsilon$, we recover\cite{ramdas_wasserstein_2015} both unregularised $\OT$, and the $\MMD$:
 \begin{align}
-&\epsilon \rightarrow 0 :\mathcal{L}_{\SH}^0(p_{\boldsymbol\theta}, \pi)\rightarrow \OT^c(p_{\boldsymbol\theta}, \pi)\\
+&\epsilon \rightarrow 0 :\mathcal{L}_{\SH}^0(p_{\boldsymbol\theta}, \pi)\rightarrow \OT_0^c(p_{\boldsymbol\theta}, \pi)\\
 &\epsilon \rightarrow \infty:
 \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) \rightarrow  \MMD(p_{\boldsymbol\theta}, \pi) : \kappa(\mathbf{x}, \mathbf{y}) = -c(\mathbf{x}, \mathbf{y})
 \end{align}
@@ -250,7 +250,7 @@ Where $\varphi(\mathbf{x})$ is a function which depends on the optimal solutions
 
 % \end{onecolumn}
 \subsubsection*{Sinkhorn Complexity}
-The sample complexity of the Sinkhorn Divergence is of crucial interest to us; we claim that the $\TV$ and the $\KL$ are not suitable directly as cost functions due to the difficulty of computing the outcome probabilities of quantum circuits efficiently. We now motivate why the $\MMD$ is a weak cost function, and why the Sinkhorn Divergence should be used as an alternative. This will depend critically on the regularisation parameter $\epsilon$, which allows a smooth interpolation between the Optimal Transport metric and the $\MMD$. 
+The sample complexity of the Sinkhorn Divergence is of crucial interest to us; we claim that the $\TV$ and the $\KL$ are not suitable directly as cost functions due to the difficulty of computing the outcome probabilities of quantum circuits efficiently. We now motivate why the $\MMD$ is a weak cost function, and why the Sinkhorn Divergence should be used as an alternative. This will depend critically on the regularisation parameter $\epsilon$, which allows a smooth interpolation between the $\OT$ metric and the $\MMD$ one. 
 
 Firstly, we will address the computability of $\mathcal{L}_{\SH}$ and we find, due to the results of ref. \cite{genevay_sample_2018}, a somewhat `optimal' value for $\epsilon$, such that the sample complexity of $\mathcal{L}_{\SH}$ looks efficient. Specifically, the mean error between $\mathcal{L}_{\SH}$ and its approximation $\hat{\mathcal{L}}_{\SH}$, computed using $M$ samples, scales as:
 \begin{align}
@@ -265,7 +265,7 @@ Firstly, we will address the computability of $\mathcal{L}_{\SH}$ and we find, d
 \noindent which is the same sample complexity as the $\MMD$\cite{sriperumbudur_integral_2009}, but exponentially better than that of unregularised optimal transport, which scales as $\mathcal{O}\left(1/{M}^{1/n}\right)$\cite{dudley_speed_1969}. A similar result can be derived using a concentration bound\cite{genevay_sample_2018}, such that with probability $1-\delta$, 
 \begin{align}
     |\mathcal{L}_{\SH}^{O(n^{3/2})}  - \hat{\mathcal{L}}_{\SH}^{O(n^{3/2})} | 
-    = &\mathcal{O}\left(\frac{1}{\sqrt{M}}\log(1/\delta)^{1/2}\right) \label{sinkhornborn_samplecomplexity_choosed_MAIN}
+    = \mathcal{O}\left(\frac{1}{\sqrt{M}}\log(1/\delta)^{1/2}\right) \label{sinkhornborn_samplecomplexity_choosed_MAIN}
 \end{align}
 
 \noindent Where we have chosen the same scaling for $\epsilon$ as in \eqref{sinkhorn_expectation_sample_chosen_MAIN}. Therefore, we can choose an optimal theoretical value for the regularisation, such that $\mathcal{L}_{\SH}$ is sufficiently far from $\OT$ to be efficiently computable, but perhaps still retains some of its favourable properties. It is likely in practice however, that a much lower value of $\epsilon$ could be chosen without a blow up in sample complexity\cite{genevay_learning_2017,  genevay_sample_2018}. See \appref{supp_matt:sinkhorn} for derivations of these two results.
@@ -276,18 +276,20 @@ Secondly, we can relate the $\mathcal{L}_{\SH}$ to unregularised $\OT$ and $\TV$
 \end{align}
 
 
-\noindent if $C := \sup\limits_{\mathbf{x} \in \mathcal{X}^n} \kappa(\mathbf{x}, \mathbf{x}) < \infty$. In the case of the two kernels we use, $C = 1$:
+\noindent if $C := \sup_{\mathbf{x} \in \mathcal{X}^n} \kappa(\mathbf{x}, \mathbf{x}) < \infty$. 
+
+Note that for the two kernels introduced earlier:
 \begin{align}
 \kappa_G(\mathbf{x}, \mathbf{x}) &= \frac{1}{c}\sum\limits_{i=1}^c e^{-\frac{1}{2\sigma_i}|\mathbf{x} - \mathbf{x}|^2} =\frac{1}{c}(c) = 1\\
-\kappa_Q(\mathbf{x}, \mathbf{x}) &= |\braket{\phi(\mathbf{x})|\phi(\mathbf{x})}|^2 = |\braket{0|0}^{\otimes n}|^2 = 1 \forall \mathbf{x}
+\kappa_Q(\mathbf{x}, \mathbf{x}) &= |\braket{\phi(\mathbf{x})|\phi(\mathbf{x})}|^2 = |\braket{0|0}^{\otimes n}|^2 = 1 %\forall \mathbf{x}
 \end{align}
-so the lower bound is immediate. 
+hence $C = 1$ and the lower bound is immediate. 
 
 In contrast, the Wasserstein metric (unregularised $\OT$) provides an \textit{upper} bound on $\TV$, and hence we would expect it to be stronger then the $\MMD$ due to the following inequality on a discrete sample space \cite{gibbs_choosing_2002}:
 \begin{align}
     d_{min} \TV(p_{\boldsymbol\theta}, \pi) \leq \OT^d_0(p_{\boldsymbol\theta}, \pi) \leq \text{diam}(\mathcal{X})\TV(p_{\boldsymbol\theta}, \pi) \label{tv_wasserstein_inequality}
 \end{align}
-where $\text{diam}(\mathcal{X}^n) = \max\{d(\mathbf{x}, \mathbf{y}), \mathbf{x}, \mathbf{y} \in \mathcal{X}^n\}$, $ d_{min} = \min_{x\neq y}d(\mathbf{x}, \mathbf{y})$, and $d(\mathbf{x}, \mathbf{y})$ is the metric on the space, $\mathcal{X}^n$. This arises by choosing $c = d$ and $\epsilon = 0$ in the above \eqref{wassersteinregularised}. If, for instance, we were to choose $d(\mathbf{x}, \mathbf{y})$ to be the $\ell_1$ metric between the binary vectors of length $d$, i.e.\@ the Hamming distance, then we get that $ d_{min} = 1, \text{diam}(\mathcal{X}) = n$, and so:
+where $\text{diam}(\mathcal{X}^n) = \max\{d(\mathbf{x}, \mathbf{y}), \mathbf{x}, \mathbf{y} \in \mathcal{X}^n\}$, $ d_{min} = \min_{x\neq y}d(\mathbf{x}, \mathbf{y})$, and $d(\mathbf{x}, \mathbf{y})$ is the metric on the space, $\mathcal{X}^n$. This arises by choosing $c = d$ and $\epsilon = 0$ in the above \eqref{wassersteinregularised}. If, for instance, we were to choose $d(\mathbf{x}, \mathbf{y})$ to be the $\ell_1$ metric between the binary vectors of length $d$(a.k.a.\@ the  Hamming distance), then we get that $ d_{min} = 1, \text{diam}(\mathcal{X}) = n$, and so:
 \begin{align}
      \TV(p_{\boldsymbol\theta}, \pi) \leq \OT^{\ell_1}_0(p_{\boldsymbol\theta}, \pi) \leq n \TV(p_{\boldsymbol\theta}, \pi)
 \end{align}
