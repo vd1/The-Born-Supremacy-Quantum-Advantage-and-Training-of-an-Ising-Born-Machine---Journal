@@ -1,0 +1,48 @@
+\section{Integral Probability Metrics as Cost Functions}
+\label{supp_matt:cf_and_ipms}
+
+In this section, we provide more formalities relating to the cost functions used in this work.
+As mentioned above, the first distribution measure which could be used as a training cost function is the Kullback-Leibler ($\KL$) Divergence. The cost function associated with the $\KL$ divergence (also known as the negative log-likelihood) is given by:
+\begin{align}
+    &\mathcal{L}_{\KL}(p_{\boldsymbol\theta}, \pi) \coloneqq -\sum\limits_{\mathbf{z}} \pi(\mathbf{z})\log\left(p_{\boldsymbol\theta}(\mathbf{z})\right)  = -\mathbb{E}_{\mathbf{z}\sim\pi}(\log(p_{\boldsymbol\theta}(\mathbf{z}))\label{klcostfunction}
+\end{align}
+The gradient of the $\KL$ cost, $\mathcal{L}_{\KL}$, cannot be estimated efficiently for these types of QCL models\citeS{liu_differentiable_2018} since it has the following form:
+\begin{align}
+\frac{\partial\mathcal{L}_{\KL}}{\partial \theta} 
+& \sim \sum\limits_{\mathbf{z}}\frac{\pi(\mathbf{z})}{{p_{\boldsymbol\theta}(\mathbf{z})}}\left(p^-_{\boldsymbol\theta}(\mathbf{z})- p^+_{\boldsymbol\theta}(\mathbf{z})\right) \label{klgradient}
+\end{align}
+As noted in refs. \citeS{bremner_classical_2011, liu_differentiable_2018}, computing the required probabilities $p_{\boldsymbol\theta}$ is $\#\Pee$-hard, and so \eqref{klgradient} cannot be computed efficiently.
+Furthermore, the $\KL$ Divergence is an example of a so-called $f$-divergence \citeS{sriperumbudur_integral_2009}, and such measures are notoriously hard to estimate in practice. A potential solution to this is to use an alternative family of discrepancies, called \textit{Integral Probability Metrics} (IPMs) which are defined by the following equation:
+\begin{align}
+    \gamma_{\mathcal{F}}(p_{\boldsymbol\theta}, \pi) &  \coloneqq \sup_{\phi \in \mathcal{F}}\left|\int_{\mathcal{M}}\phi dp_{\boldsymbol\theta}-\int_{\mathcal{M}}\phi d\pi\right| \label{ipmequation}\\
+    &= \sup_{\phi \in \mathcal{F}}\left(\mathbb{E}_{p_{\boldsymbol\theta}}[\phi]- \mathbb{E}_{\pi}[\phi]\right) 
+\end{align}
+Where $p_{\boldsymbol\theta}, \pi$ are defined over a measurable space, $\mathcal{M}$. The class of functions which are chosen, $\mathcal{F}$, defines the specific metric.
+
+The $\MMD$ is one of the simplest such example of an IPM, since it is relatively easy to compute and has a low sample complexity, as discussed in the main text. The $\MMD$ was first used in ref.\citeS{gretton_kernel_2012} as a hypothesis test, to determine if two distributions are identical. For a more thorough treatment of the properties of this metric, see refs. \citeS{sriperumbudur_universality_2011, sriperumbudur_hilbert_2010}.  
+
+The $\MMD$ can be extracted from \eqref{ipmequation} by restricting the class of functions, $\mathcal{F}$, to be a unit ball in a Hilbert space, $\mathcal{H}$:
+\begin{align}
+\mathcal{F}_{\MMD} &  \coloneqq \{\phi \in \mathcal{H}: ||\phi||_{\mathcal{H}}\leq 1\} \rightarrow \gamma_{\MMD} \label{mmd_metric_supp}
+\end{align}
+where $||\cdot||_{\mathcal{H}}$ denotes the norm in $\mathcal{H}$.
+
+The second IPM which is relevant here is the total variation ($\TV$) distance. In fact, the $\TV$ was shown in ref. \citeS{sriperumbudur_integral_2009}, to be the only cost function which is both an IPM, and an $f$-divergence. The $\TV$ can be obtained by taking the function space as follows:
+\begin{align}
+    \mathcal{F}_{\TV} &  \coloneqq \{\phi: ||\phi||_{\infty} \leq 1\} \label{totalvariationfunctions}
+\end{align}
+Where $||\phi||_{\infty} = \sup\{|\phi(\mathbf{x})|, \mathbf{x} \in \mathcal{M}\}$. Also, when working with a discrete (more generally countable) space, $\mathcal{M} = \mathcal{Y}$, the total variation is given by:
+\begin{align}
+\TV(p_{\boldsymbol\theta}, \pi) &  \coloneqq  \frac{1}{2}\sum\limits_{\mathbf{x} \in \mathcal{Y}}|p_{\boldsymbol\theta}(\mathbf{x})- \pi(\mathbf{x})| \label{discretetotalvariation}
+\end{align}
+
+This measure is particularly important, since it occurs in the definition of additive error simulation hardness in \appref{supp_matt:ibm_variation_hardness}, and it is the measure we use as the relative benchmark for the numerical results in the main text, and in \appref{supp_matt:numericalresults}.
+
+Finally, the third useful IPM is the Kantorovich Metric, defined by:
+\begin{align}
+    \mathcal{F}_{\W} &  \coloneqq \{\phi: ||\phi||_{L} \leq 1\} \label{kantorovichmetric}
+\end{align}
+
+
+where $||\cdot||_{L}$ is the Lipschitz semi-norm, defined by: $||\phi||_{L} := \sup\{|\phi(x) - \phi(y)|/d(\mathbf{x}, \mathbf{y}) : \mathbf{x} \neq \mathbf{y} \in \mathcal{Y}\}$, where $d$ is a metric on $\mathcal{Y}$. It turns out due to the Kantorovich-Rubinstein theorem\citeS{dudley_real_2002}, this is also equivalent to the \textit{Wasserstein Metric} and related to the notion of Optimal Transport, discussed in \appref{supp_matt:sinkhorn}.
+

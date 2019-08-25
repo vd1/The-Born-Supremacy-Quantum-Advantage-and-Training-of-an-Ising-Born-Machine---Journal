@@ -1,0 +1,347 @@
+
+
+\section{Classical Simulation of Quantum Computations}
+\label{supp_matt:hardness}
+
+In this section, we provide relevant definitions relating to Quantum Computational Supremacy, and the notions of simulation error we utilise. We then provide the theorem relating to the hard parameter classes of the $\IBM$, which we alluded to in the main text, and prove it. We also show how this holds for most of the circuit families encountered during training. Firstly, however, it is necessary to provide relevant definitions.
+
+The central question behind quantum supremacy is whether or not it is possible to design a classical algorithm which could produce a probability distribution $q(\mathbf{x})$, which is \textit{close} to a given quantum output distribution $p(\mathbf{x})$. This notion of reproducing a quantum distribution can be formalised as classical simulation, of which there are typically two types. 
+For our purposes, the more relevant notion is instead that of \textit{weak simulation}, which better captures the process of sampling.
+\begin{definition}[Strong and Weak Classical Simulation\citeS{bremner_classical_2011, fujii_commuting_2017}]  \label{defn:strong_weak_sim}
+    A uniformly generated quantum circuit, $C$, from a family of  circuits, with input size $n$, is weakly simulatable if, given a classical description of the circuit, a classical algorithm can produce samples, $\mathbf{x}$, from the output distribution, $p(\mathbf{x})$, in $poly(n)$ time. On the other hand, a strong simulator of the family would be able to compute the output probabilities, $p(\mathbf{x})$, and also all the marginal distributions over any arbitrary subset of the outputs. Both of these notions apply to some notion of error, $\epsilon$.
+\end{definition}
+
+As mentioned in ref. \citeS{bremner_classical_2011}, strong simulation\footnote{The suitable notion of error, $\epsilon$, for strong simulation would be the precision to which the probabilities can be computed.} is a harder task than weak simulation, and it is this weak simulatability which we want to rule out as being classically hard. The specific instances of problems which are classically hard is captured by \text{worst case} and \textit{average case} hardness. Informally, worst case implies there is \textit{at least} one instance of the problem which is hard to simulate. This worst case hardness holds for $\IQP/\QAOA$ circuits, \citeS{bremner_classical_2011, farhi_quantum_2016}, which we will illustrate shortly. A stronger notion is that of average case hardness, which has been proven for Random Circuit Sampling, \citeS{bouland_quantum_2018}, and \textsf{BosonSampling} \citeS{aaronson_computational_2013}, but is only conjectured to hold for $\IQP$ circuits for example.
+
+One could ask ``What if we do not care about getting samples from the \textit{exact} distribution, and instead an approximation is good enough?". `Exact' in this case refers to the outcome probabilities of the simulator being identical to those outputted by the quantum device; $q(\mathbf{z}) = p(\mathbf{z}) \forall \mathbf{z}$ or $\epsilon = 0$. This is a very important and relevant question to ask when discussing quantum supremacy since experimental noise means it could be that even quantum computers cannot produce the exact dynamics that they are supposed to, according to the theory. Worse still, noise typically results in decoherence and the destruction of entanglement and interference in quantum circuit, so in the presence of noise the resulting output distribution could become classically simulatable.
+
+We wish to have strong theoretical guarantees that experiments which claim to demonstrate supremacy, even in the presence of reasonable noise, do in fact behave as expected. Since we are dealing fundamentally with probability distributions, there are many notions of error one could choose. One of the simplest examples is multiplicative error.
+
+\begin{definition}[Multiplicative Error]
+    \label{defnmulterror}
+    A circuit family is weakly simulatable within multiplicative (relative) error, if there exists a classical probabilistic algorithm, $Q$, which produces samples, $\mathbf{z}$, according to the distribution, $q(\mathbf{z})$,  in time which is polynomial in the input size, such that it differs from the ideal quantum distribution, $p(\mathbf{z})$, by a multiplicative constant, $c > 1$:
+    \begin{align}
+        \frac{1}{c}p(\mathbf{z}) \leq q(\mathbf{z}) \leq c p(\mathbf{z}) \qquad \forall \mathbf{z} \label{multerror}
+    \end{align}
+\end{definition}
+
+As noted in \citeS{fujii_impossibility_2018}, it would be desirable to have a quantum sampler which could achieve the bound, \eqref{multerror}, but this is not believed to be an experimentally reachable goal\footnote{In the sense that it is not believed a \textit{physical} quantum device, could achieve such a multiplicative error bound on its probabilities, relative to its ideal functionality, i.e.\@ replacing $q$ in \eqref{multerror} by the output distribution of a noisy quantum device.}. That is why much effort has been put in trying to find systems for which supremacy could be provably demonstrated according to the total variation distance error condition, \eqref{variationdistanceerror}, which is easier to achieve on near term quantum devices. 
+
+\begin{definition}[Total Variation ($\TV$) Error]
+    \label{defnvardiserror}
+    A circuit family is weakly simulable within variation distance  error, $\epsilon$, if there exists a classical probabilistic algorithm, $Q$, which produces samples, $\mathbf{x}$, according to the distribution, $q(\mathbf{x})$, in polynomial time, such that it differs from the ideal quantum distribution, $p(\mathbf{x})$ in total variation distance, $\epsilon$:
+    \begin{align}
+       \TV(p, q)  \coloneqq \frac{1}{2}\sum\limits_{\mathbf{x}}|p(\mathbf{x})- q(\mathbf{x})| \leq \epsilon \label{variationdistanceerror} 
+    \end{align}
+\end{definition}
+Intuitively, multiplicative error sampling is `harder' since it must hold \textit{for all} samples, i.e.\@ the classical algorithm, $Q$, must capture all the fine features of the target distribution, $p$. In contrast, variation distance error indicates that the distributions only have to be similar `overall'. One could also ask for hardness within other metrics, perhaps those studied here including the Wasserstein metric for example.
+
+
+
+
+
+
+
+\subsection{Multiplicative Error Hardness of Ising Born Machine Circuits}
+
+Now that we have the necessary definitons, we demonstrate how the core of the $\IBM$ (the underlying circuit) should be hard to sample from efficiently by purely classical means, up to multiplicative error, by pulling together the relevant hardness results from previous works in this area. Specifically, we formalise the discussion in the above text and prove the following theorem:
+
+\begin{theorem}\label{thm:ibmmultsimulationhardness}
+    If the output probability distributions generated by uniform families of $\IBM(\theta)$ circuits could be weakly classically simulated to within multiplicative error $1 \leq c \leq \sqrt{2}$ then $\PBPP = \PP$ (and hence the polynomial hierarchy collapses to the third level), where $\forall k, i, j,$:
+    \begin{align}
+        J_{ij}, b_{k} &= 
+        \begin{cases}
+            \frac{(2l+1)\pi}{8d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervalues1}
+    \end{align}
+    and for each of the following instances:
+    \begin{align}
+        \Gamma_k = 0, \Delta_k &=  
+        \begin{cases}
+            \frac{(2l+1)\pi}{8d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervalues2}\\
+        \Delta_k = 0, \Gamma_k &= 
+        \begin{cases}
+            \frac{(2l+1)\pi}{4d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervalues3}\\
+        \Delta_k = 0, \Gamma_k = \Sigma_k &=  
+        \begin{cases}
+            \frac{(2l+1)\pi}{2\sqrt{2}d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervalues4}
+\end{align}
+\end{theorem}
+
+As discussed in the main text, the following choices of $\mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma}$ give the more well known circuit classes:
+\begin{align}
+    \IBM\left(\{J_{ij}, b_{k}\}, \forall k: \Gamma_k = \frac{\pi}{2\sqrt{2}}, \Delta_k = 0, \Sigma_k =  \frac{\pi}{2\sqrt{2}}\right) &= \IQP(\{J_{ij}, b_{k}\})\\
+    \IBM(\{J_{ij}, b_{k}\}, \mathbf{\Gamma} = -\mathbf{\Gamma}, \mathbf{0} , \mathbf{0}) &= \QAOA_{p=1}(\{J_{ij}, b_{k}\}, \mathbf{\Gamma})
+\end{align}
+
+These are simply \emph{worst case} hardness results and they tell us nothing about the \emph{specific} circuit which would be hard, only that there exists one, generated by these intermediate gates, which is hard to simulate classically up to multiplicative error. 
+
+\begin{proof}
+
+The proof of \theref{thm:ibmmultsimulationhardness} involves stitching together several results, some well known, some less so, and, to the best of out knowledge, some unknown. The proof will proceed systematically through the instances of the parameters, $\left\{ J_{ij}, b_{k}\right\}, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma}$, and will show that in each of the cases mentioned in \theref{thm:ibmmultsimulationhardness} the class of circuits generated cannot, in the worst case, be simulated to within multiplicative error efficiently by any classical means. For the remainder of this proof, we use the phrase `simulate' to mean exactly this.
+
+\subsubsection*{\texorpdfstring{$\IQP$}{IQP}}\label{appa:iqphardnessproof}
+As stated above, $\IQP$ circuits correspond to the setting of the parameters, $\{J_{ij}, b_{k}\}, \forall k: \Gamma_k = \pi/2\sqrt{2} , \Delta_k = 0, \Sigma_k= \pi/2\sqrt{2} $. This means the unitary $U_z(\theta)$ is applied to the initial superposition state, $\ket{+}^{\otimes n}$, followed finally by a Hadamard applied to all qubits, $H^{\otimes n}$. It is known that $\IQP$ circuits, with the homogeneous parameters $\alpha = J_{ij} = b_{k} =  \pi/8\  \forall i,j,k$ in \eqref{iqp_ising_hamiltonian}, are hard to simulate in the worst case \citeS{bremner_classical_2011}. We will denote $\IQP$ circuits with the two sets of parameters used to define them, $\{J_{ij}, b_k\}$ by $\IQP({J_{ij}}, {b_k})$.
+
+\begin{theorem}[Theorem 2 from ref. \citeS{bremner_classical_2011}]\label{thm:iqphardnessbremner}
+If the output probability distributions generated by uniform families of $\IQP(\pi/8, \pi/8)$ circuits could be weakly classically simulated to within multiplicative error $1 \leq c \leq \sqrt{2}$ then $\PBPP$ = $\PP$ (and hence the polynomial hierarchy collapses to the third level).
+\end{theorem}
+
+A collapse of $\PH$ to any level is considered unlikely, and in some sense is a generalisation of $\Pee \neq \NP$.
+Next, we consider the question of for \textit{which} homogeneous parameters, $\boldsymbol\alpha_l = \alpha = J_{ij} = b_{k}$ result in $\IQP$ circuit families which are hard to simulate. The answer is quite a few of them.
+
+\begin{theorem}[Adapted from Theorem 5 of ref.\citeS{fujii_commuting_2017}]\label{thm:iqphardnessfujii}
+If the output probability distributions generated by uniform families of $\IQP(\theta, \theta)$ circuits
+could be weakly classically simulated to within multiplicative error $1 \leq c \leq \sqrt{2}$ then $\PBPP = \PP$ (and hence $\PH$ collapses to the third level), where 
+\begin{align}
+\theta = \begin{cases}
+\frac{(2l+1)\pi}{8d} &\text{ for integers, } d, l\\
+ 2\nu \pi& \nu \in[0,1) \text{ irrational.}
+ \end{cases}\label{hardparametervaluesiqp}
+\end{align}
+\end{theorem}
+
+Finally we note that there is no need for the circuit parameters to be homogeneous. We may also allow each single and two qubit gate to have an independent parameter, as long as they are \textit{all} of the form \eqref{hardparametervaluesiqp}.
+In \theref{thm:iqphardnessbremner} it was shown that a general computation can be simulated by $\IQP$ circuits generated by a homogeneous parameter value, $\theta = \pi/8$. We will now use the argument of ref.\citeS{fujii_commuting_2017} to show why $\IQP(J_{ij}, b_{k})$ circuits, with almost all parameter angles, can simulate $\IQP(\pi/8, \pi/8)$ efficiently. The result of ref.\citeS{fujii_commuting_2017} will be a subcase of this, which accounts for the case $J_{ij} = b_k \neq \pi/8$.  Specifically, if the original $\IQP$ circuit is generated by gates in the form $D_1(\pi/8) = e^{i\frac{\pi}{8}Z}, D_2(\pi/8) = e^{i\frac{\pi}{8}Z \otimes Z}$, general $\IQP$ circuits with gates acting on at most two qubits ($|S_j|\leq 2$) will be generated by gates $D_1(b_{k}) = e^{ib_{k}Z}, D_2(J_{ij}) = e^{iJ_{ij} Z\otimes Z}$. Therefore, it is necessary to show how each of these gates can simulate each of the former gates with a homogeneous rotation angle, $\pi/8$. To do so we can use the error measure defined as follows\citeS{nielsen_quantum_2010}, as the difference between the operations of two arbitrary gates on a quantum state, when maximised over all possible states:
+\begin{align}
+E(U, V)  \coloneqq \max\limits_{\ket{\psi}}||(U-V)\ket{\psi}|| \label{error}
+\end{align}
+Where $||\cdot||$ is the norm of a vector: $||U\ket{\psi}|| = \sqrt{\bra{\psi}U^\dagger U\ket{\psi}}$. If, by $m$ repetitions, the gate is within $\epsilon$ of the required gate with parameter $\pi/8$, $U(\pi/8+\epsilon)$, the error induced by this extra $\epsilon$ factor will be $\mathcal{O}(\epsilon)$:
+\begin{align*}
+E\left(U(\pi/8+\epsilon), U(\pi/8)\right) &= |1-e^{i\frac{\epsilon}{2}}| =|1-(1-i\epsilon/2-\epsilon^2/8+\mathcal{O}(\epsilon^3))|\\
+&=|i\epsilon/2+\epsilon^2/8+\mathcal{O}(\epsilon^3))| = \sqrt{\left(\epsilon^2/8\right)^2 + \left(\epsilon/2\right)^2 +\mathcal{O}(\epsilon^3)}\\
+ &= \sqrt{\epsilon^4/64 + \epsilon^2/4^2 +\mathcal{O}(\epsilon^3)} = \epsilon/2\sqrt{1+\epsilon^2/16 +\mathcal{O}(\epsilon^3)} = \mathcal{O}(\epsilon)
+\end{align*}
+
+Specifically, with the two-qubit gate for example:
+\begin{align}
+D_2(J_{ij})^m = D_2(mJ_{ij}) = D_2\left(\frac{\pi}{8}+\epsilon\right) \label{epsilonclose}
+\end{align}
+
+so the gate with parameter $\theta_2$ can be made $\epsilon$ close to the required $CZ \sim D_2(\frac{\pi}{8})$ with respect to the error, as noted by ref. \citeS{fujii_commuting_2017, nielsen_quantum_2010}. The same thing holds for the single qubit gates with angle $\theta_1$ approximating $Z$ or $P$ for example.
+
+The irrationality of the parameter values allows the above, \eqref{epsilonclose}, to be true since $2\pi\nu m\mod 2\pi$ is distributed uniformly. See ref.\citeS{boykin_universal_1999} for a proof that any arbitrary phase can be approximated to accuracy, $\epsilon$, with $poly(1/\epsilon)$ repetitions of a phase which is an irrational multiple of $2\pi$. This shows that we it is possible to achieve any gate: $e^{i2\nu\pi \hat{n}\dot\sigma}$ using $m$ repetitions of $(e^{i2\nu\pi \hat{n}\dot\sigma})^n$ if $\nu$ is irrational. In this construction, each individual gate, $j$, will have an error, $\epsilon_j$, in contrast to ref.\citeS{fujii_commuting_2017} in which all of the errors would be the same (or a constant multiple ($\epsilon = \epsilon_j \forall k$). However, as long as this parameter, $\epsilon_j$,  for each gate is lower than the threshold for fault-tolerant quantum computation, as noted in ref.\citeS{fujii_commuting_2017}, then we can reliably simulate universal quantum computation, and hence $\PIQP( J_{ij}, b_{k}) = \PIQP(\pi/8, \pi/8)$.
+
+\subsubsection*{\texorpdfstring{$p = 1 \QAOA$}{pQAOA} \label{appa:hardnessqaoaproof}}
+
+Now, we can prove the analogous statement as with $\IQP$ with this setting of the parameters, in an identical way.
+\begin{enumerate}
+    \item The case $\forall k: \Gamma_k =  -\pi/4$ is covered by \citeS{farhi_quantum_2016} where it is shown how $\QAOA(\pi/8, \pi/8, \pi/4)$ equipped with postselection is equivalent to $\BQP$ with postselection. The proof involves the design of a gadget similar to the $\IQP$ gadget in the $\IQP$ proof of hardness, and results in a similar collapse of the $\PH$ as in Theorem (\ref{thm:iqphardnessbremner}).
+    \item Extending the parameters, $J_{ij} = b_{k} = \pi/8$ in the diagonal unitary $U_z(\theta)$ to general parameters, $J_{ij}, b_k$ follows identically to the argument for $\IQP$ in the previous section. More specifically, any diagonal gate with parameter, $\pi/8$, can be simulated by a gate with any parameter of the form \eqref{hardparametervalues1}, applied a constant number of times to get within a fixed error of the desired $\pi/8$ gate.
+    \item Finally, if we wish to simulate the behaviour of any gate $\tilde{H} = e^{-i\pi/4 X_k}$, by any general gate $U_f(\Gamma_k) =  e^{-i\Gamma_k X_k}$ on qubit $k$, we just need to apply the latter gate a constant, $m = \mathcal{O}(1/\epsilon)$, number of times, to get within $\epsilon$, of the gate $\tilde{H}$, exactly as in \eqref{epsilonclose}. Now, we will have $k$ such gates, each requiring the application of a constant number of repetitions, $m_k = \mathcal{O}(1/\epsilon_k)$, so the total number of gates that would have to be applied is $\prod\limits_{k=1}^n m_k$.
+    Overall, we will acquire a polynomial overhead in the simulation of the circuit generated by the fixed parameters, $\forall i,j,k: J_{ij} = \pi/8,b_k =  \pi/8,\Gamma_k =  -\pi/4$. Hence we can achieve universal quantum computation with postselection in exactly the same way, and hence $\PQAOA(\{J_{ij}, b_{k}\} , \mathbf{\Gamma}) = \PBQP$.
+\end{enumerate}
+
+
+
+\subsubsection*{Remaining Cases}\label{ssec:remaininghardnesscases}
+The above two sections cover many of the angles for the final measurement unitary to result in a hard circuit class. We can immediately extend the argument to cover almost all of the angles. 
+The following case is a generalisation of $\IQP$:
+\begin{align}
+        \Delta_k = 0, \Gamma_k = \Sigma_k &=  
+        \begin{cases}
+            \frac{(2l+1)\pi}{2\sqrt{2}d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervaluesgenhadamardapp}
+\end{align}
+Where the final angle is a rotation in the `Hadamard' axis, i.e.\@\@ a rotation around the axis $1/\sqrt{2}(X+Z)$, but by a more general angle than $\pi$.
+
+Secondly, when the final measurement unitary is a rotation around the Pauli-$Y$, i.e.\@ the $\IBM$ has the following parameters:
+\begin{align}
+        \Sigma_k = 0, \Gamma_k = 0, \Delta_k &=  
+        \begin{cases}
+            \frac{(2l+1)\pi}{4d} &\text{ for integers, } d, l\\
+            2\nu \pi& \nu \in[0,1) \text{ irrational.}
+        \end{cases}\label{hardparametervaluesYbasis}
+\end{align}
+where the final measurement unitary is:
+\begin{align}
+U_f(\Delta_k) = R_y(-2\Delta_{k}) =  e^{i\Delta_{k} Y_k} \label{yrotation}
+\end{align}
+We can see how this family is also hard to simuluate by relating it to $\IQP$ circuits as follows. If there exists no classical randomised polynomial time algorithm to produce samples, $\mathbf{z}$, in polynomial time according to the $\IQP$ distribution:
+\begin{align}
+p_{\IQP}(\mathbf{z}) = |\bra{\mathbf{z}}H^{\otimes n}U_z(\boldsymbol\alpha) H^{\otimes n}\ket{0}^{\otimes n}|^2 \label{iqpdist2}
+\end{align}
+Let $p^*$ be the output distribution produced by these types of circuits with a final Pauli-$Y$ rotation:
+\begin{align}
+p^*(\mathbf{z}') = |\bra{\mathbf{z}'}\bigotimes\limits_{i=1}^n e^{i\frac{\Delta_i}{2} Y_i}U_z(\boldsymbol\alpha) H^{\otimes n}\ket{0}^{\otimes n}|^2 \label{iqpydistribution}
+\end{align}
+
+This is due to the relationship: $H  =\frac{1}{\sqrt{i}}XY^{\frac{1}{2}} = \frac{1}{\sqrt{i}}XR_y(\frac{\pi}{2})$. Therefore, choosing $\Delta_k = \pi/4$, we get that the two distributions, (\eqref{iqpdist2}, \eqref{iqpydistribution}) are related as follows:
+\begin{align}
+p_{\IQP}(\mathbf{z}) &= |i^{-n}\bra{\mathbf{z}}X^{\otimes n}\sqrt{Y}^{\otimes n}U_z(\boldsymbol\alpha) H^{\otimes n}\ket{0}^{\otimes n}|^2\\
+&= |\bra{\mathbf{z}'}\bigotimes\limits_{i=k}^ne^{i\frac{\pi}{4} Y_k}U_z(\boldsymbol\alpha) H^{\otimes n}\ket{0}^{\otimes n}|^2  = p^*(\mathbf{z}')
+\end{align}
+
+so $\mathbf{z}'$ is simply $\mathbf{z}$ with every bit flipped. Clearly, if one could produce samples, $\mathbf{z}$, by some classical means efficiently, then the same algorithm with one extra step can be used to produce the samples, $\mathbf{z}'$, and hence the choice of parameters $\IBM(\boldsymbol\alpha, \mathbf{0}, \{\Delta_k = \pi/4\},\mathbf{0})$ is also classically hard to sample from, where $\boldsymbol\alpha = \{ J_{ij}, b_{k}\}$ have the same constraints as in $\IQP$ or $\QAOA$. The extension from $\Delta_k = \pi/4$ to almost any general $\Delta_k$, according to \eqref{hardparametervaluesYbasis}, follows in an identical fashion from the above two cases so these circuit classes with postselection are also equal to $\PBPP$ and if they could be simulated, once again the $\PH$ collapses to the third level.
+
+\end{proof}
+
+\subsection{Total Variation Distance Hardness of Ising Born Machine Circuits \label{supp_matt:ibm_variation_hardness}}
+
+We can improve the hardness of the model by incorporating a stronger result about the circuit class, $\IQP$. The $\IBM$ model must be initialised to some setting of the circuit parameters to begin the training process. One such possible initialisation is to randomly assign $J_{ij}, b_{k}$ to some subset with uniform probability. The random initialisation is typical in machine learning, but it is not the only way one could initialise the parameters. In this case however, we will do so in order to use the $\IQP$ result of ref.\citeS{bremner_average-case_2016}.
+
+Firstly, define the \textit{partition function},  $\mathcal{Z}$, associated with the Ising Hamiltonian, \eqref{iqp_ising_hamiltonian_supp}:
+\begin{align}
+ \mathcal{H}  \coloneqq i\sum\limits_{i<j} J_{ij}z_iz_j + i\sum\limits_{k=1}^n b_k z_k \label{iqp_ising_hamiltonian_supp}\\
+    \mathcal{Z}  \coloneqq \sum\limits_{z\in\{\pm 1\}^n}e^{  i\sum\limits_{i<j} J_{ij}z_iz_j + i\sum\limits_{k=1}^n b_k z_k} \label{iqp_isingpartition_fun_supp}
+\end{align}
+Now, an output amplitude of an $\IQP$ circuit can be written as this partition function:
+\begin{align}
+    2^n\bra{\mathbf{z}}U_z(\boldsymbol\alpha)\ket{\mathbf{z}} = \mathcal{Z}
+\end{align} 
+
+The hardness of $\IQP$ circuits is related to computing this partition function in a similar way that $\BosonSampling$ is related to computing the permanent of a matrix\citeS{aaronson_computational_2013}.
+Now, we can immediately use the following theorem:
+
+\begin{theorem}[From ref.\citeS{bremner_average-case_2016}] 
+\label{thm:iqphardnessbremneradditive}
+    Assume it is $\#\Pee$-hard to approximate $|\mathcal{Z}|^2$ up to a relative error  $1/4+o(1)$ for $1/24$ fraction of instances over the choice of the weights and biases, $J_{ij}, b_k$. If it is possible to classically sample from the output probability distribution of any $\IQP$ circuit in polynomial time, up to an additive error of $1/384$ in total variation distance, then there is a $\BPP^{\NP}$ algorithm to solve any problem in $\Pee^{\#\Pee}$, and hence the polynomial hierarchy collapses to the third level)
+\end{theorem}
+
+
+This holds if the parameters are chosen uniformly at random from $\{J_{ij}, b_k\} \in\{0,\frac{\pi}{8}, \dots, \frac{7\pi}{8}\}$, which corresponds to randomly choosing a circuit from the $\IQP$ circuit class according to some measure over the unitary group. We refer to ref.\citeS{bremner_average-case_2016} for the proof of the above. This is done by introducing a conjecture (included in Theorem (\ref{thm:iqphardnessbremneradditive})), which claims that \textit{on average} (i.e.\@\@ over a $\frac{1}{24}$ fraction of instances) the Ising partition function is hard to compute up to a multiplicative error. Again, this holds only in the worst case, and translates between an average case conjecture in multiplicative error into a worst case result in total variation error. Using this, if we were to choose the setting of parameters such that they correspond to an $\IQP$ circuit, $\IBM\left(\{J_{ij}, b_{k}\}, \{\frac{\pi}{2\sqrt{2}}\},  \mathbf{0},  \{\frac{\pi}{2\sqrt{2}}\}\right)$, and initialise $J_{ij}, b_k$ to the values above, then we shall start with an $\IBM$ in a regime which is also hard to simulate classically up to a variation distance error in the worst case. Now, a random initialisation of parameterised quantum circuits has been shown to lead to `barren plateaus'\citeS{mcclean_barren_2018}, in which the gradient with respect to some quantum circuits becomes exponentially small, and so one would need exponential resources to estimate it. This indeed could be an issue for training such $\IBM$ circuits as the number of qubits scales, but this question is currently under investigation, with some potential solutions found for circuit initialisation \citeS{grant_initialization_2019, verdon_learning_2019}. However, in this work, we assume a random (but fixed) initialisation for simplicity as we are solely interested in the performance of various cost functions.
+
+
+
+Collecting the results required in Theorem (\ref{thm:ibmmultsimulationhardness}) is necessary, since we want to make the strongest arguments for the intractability of classically simulating the Ising Born Machine. If we were not careful, the parameter updates could lead us into a regime which was classically simulatable.
+Now, the initialisation of the parameters, $\theta^{(0)}$, will lead to a circuit class which is hard to sample from classically in the worst case, up to variation distance error, if $U_f$ is chosen such that the $\IBM$ is exactly an $\IQP$ circuit, otherwise it will only be (provably) hard up to multiplicative error. These samples can then be used to compute the cost function, $\mathcal{L}_B$. Now computing the gradients, $\frac{\partial \mathcal{L}}{\partial \theta_k}$, for all choices of cost function, $B = \{\MMD, \SD, \SH\}$ requires running parameter shifted circuits, $p^-_{\theta_k}, p^+_{\theta_k}$. If the original circuit is hard to sample from, these shifted circuits will \textit{also} be hard to sample from. This is due to the fact that they only differ by a single parameter shift, which can be reabsorbed into the original parameters such that the resulting circuit also resides in the hard circuit classes. As an example, using an $\IQP$ circuit, if the parameter to be updated is $J_{ij}$, then that parameter should have been initialised according to Theorem (\ref{thm:iqphardnessfujii}):
+\begin{align}
+J_{ij} = \begin{cases}
+\frac{(2l+1)\pi}{8d} &\text{ for integers, } d, l\\
+ 2\nu \pi& \nu \in[0,1) \text{ irrational.}
+ \end{cases} \label{hardanglesend}
+\end{align}
+Therefore:
+\begin{align}
+J_{ij}\pm \frac{\pi}{2} = \begin{cases}
+\frac{(2(l \pm 4d)+1)\pi}{8d} &\text{ for integers, } d, l\\
+ 2\left(\frac{2\nu \pm 1}{4}\right) \pi& \nu \in[0,1) \text{ irrational.}
+ \end{cases}
+\end{align}
+A relabelling of $l\pm 4d \rightarrow k, \frac{1}{4}(2\nu \pm 1) \rightarrow \mu$, where $\mu$ is irrational if $\nu$ is, and $k$ is still an integer, gives that the parameter shifted circuits should have exactly the same structure as (\ref{hardanglesend}), and hence should be just as hard. 
+
+The above argument illustrates how the circuits required to compute the gradient for a given parameter, $J_{ij}$, should be as hard as the original circuit. However, the training algorithm requires update the parameters of the $\IBM$ circuit, over a number of epochs, in order to provide better fits to the data. As detailed above, this is done using the following update rule:
+\begin{align}
+    \theta_l^{(d+1)} \leftarrow \theta_l^{(d)} - \eta \frac{\partial \mathcal{L}_B}{\partial \theta^{(d)}_l} \label{updaterule}
+\end{align}
+
+We can ensure that the system remains in a class which has worst case hardness to simulate as long as we start with an initial configuration of the parameters that demonstrates supremacy, and update them such that this remains the case. For example, if we choose the initial parameters, $\theta^{(0)} = 2\pi\nu$, where $\nu$ is irrational, then an update will be of the form $\theta^{(d+1)} = \theta^{(d)} + \mu$. If we choose $\mu = 2\pi\alpha$, then the new parameters at epoch, $d+1$, will be $\theta^{(d+1)} = 2\pi\beta, \beta = \nu+\alpha$\footnote{$\alpha$ will be the learning rate multiplied by the gradient, $\eta \frac{\partial \mathcal{L}}{\partial \theta^{(d)}_l}$.} Since $\nu$ was irrational originally, $\beta$ will also be irrational, and therefore the new configuration should be hard to simulate classically. Although, clearly we cannot allow updates like $\alpha = -\nu (+ \delta)$, where $\delta$ is rational since this will result in the parameter going to $0 (\delta)$ and could make the model classically simulatable. As an example of this, choose the following circuit parameters for the $\IBM(\{J_{ij}, b_k\}, -\mathbf{\Gamma}_k, \Delta_k = 0, \Sigma_k = 0)$, which is a $p=1 \QAOA$ circuit, and then set $\Gamma_k = 0$. In this case, we create a uniform superposition from the initial Hadamards, $1/\sqrt{2^n}\sum_\mathbf{z}\ket{\mathbf{z}}$, and then apply gates in the computational basis. This will only add phases to each contribution $e^{i\theta}\ket{z_j}$. If we have no final `measurement' gate (i.e.\@ the parameter is zero), this is equivalent to measuring the state in the computational basis at the end. Since the phases do not have the ability to interfere with each other, they will have no effect on the measurement probabilities, and the final distribution will be simply the uniform distribution over all $n$-bit strings, $\mathbf{z}$. This can clearly be classically simulated by a sequence of coin flips. Another example is if we were to allow the entangling parameters, $J_{ij} \rightarrow 0$. This would lead to a circuit composed only of single qubit gates, which again is not classically hard.
+
+There is, of course, a caveat to this argument. The hardness results in Theorem (\ref{thm:ibmmultsimulationhardness}) are only valid in the \textit{worst case}. This means that there exists \textit{some} instance of the problem generated by the set of parameters which cannot be classically simulated efficiently. More specifically, while with each instance of `hard' parameter values, we may end up in a parameter landscape which admits is a worst case hardness result, there is obviously no guarantee that the particular instance \textit{implemented} in the $\IBM$ is in fact \textit{the} hard one, and we do not claim to have found such a thing. Furthermore, there is also no guarantee that we go from the `hard' circuit generated from one set of parameters, to the hard circuit using the next set of parameters (given by the gradient update).
+
+Further adding to this hardness argument is the required computation of the intermediate classically-hard kernel (\ref{quantumkernel}), should that be the one which is chosen. This computation must be done \textit{for all} pairs of samples required in the loss, $\mathcal{L}_B$ and its gradient, and as such, increases the conjectured hardness of classically simulating the training algorithm. This is due to the argument of ref.\citeS{havlicek_supervised_2019}, which conjectures that this kernel should be hard to compute for any classical algorithm given only a classical description of the states, up to additive error. 
+
+
+
+
+
+
+
+
+
+
+
+% \subsection{Quantum Circuit Classes \label{ssec:hardcircuitclasses}}
+
+% The circuit classes we introduce is strongly related to two classes, which have both had their relationship to Quantum Supremacy studied extensively \citeS{bremner_classical_2011, bremner_average-case_2016, bremner_achieving_2017, farhi_quantum_2014, farhi_quantum_2016}. Both are `sub-universal', in the sense that they are not powerful enough to directly simulate arbitrary quantum computations, but are believed to achieve something outside of the classically tractable regime. They are derived from an Ising-type Hamiltonian, and differ only in the final `measurement' gate applied, which is a rotation gate applied immediately preceding a measurement. 
+
+% Initially, a Hadamard basis preparation is performed.
+% This is followed by a unitary evolution by $m$ operators, each acting on the qubits in the set $S_j$ and described by:
+
+% \begin{equation}
+%     U \left( \alpha_j, S_j \right) = \exp \left( i \alpha_j \bigotimes_{k \in S_j} Z_k \right) \label{diagonalunitary}
+% \end{equation}
+% This is followed by the \textit{measurement} unitary $U_f$ which is built from single qubit gates acting on each qubit.
+
+% \begin{align}
+%     \label{finalmeasurementgate}
+%     U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) = \exp\left(i\sum\limits_{k=1}^n \Gamma_k X_k + \Delta_k Y_k +\Sigma_k Z_k\right)
+% \end{align}
+% Where $X_k, Y_k, Z_k$ are the canonical Pauli operators, \citeS{nielsen_quantum_2010}, acting on qubit $k$. The final circuit is the following:
+% \begin{equation}
+%     \label{ibmcircuitlclass}
+%     U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) \prod\limits_{j=1}^m U(\alpha_j, S_j)H^{\otimes n} \ket{0}^{\otimes n} 
+% \end{equation}
+% Sampling from distributions produced by these circuits is performed by computational basis measurements of all qubits.
+
+% We now show how the specific choices of parameters in \eqref{ibmcircuitlclass} retrieve the circuit classes mentioned above.
+
+% \subsubsection{Instantaneous Quantum Polynomial Time Computations (\textsf{IQP})}
+
+% The first example of a sub-universal class is that of Instantaneous Quantum Polynomial Time Computations ($\IQP$) circuits \citeS{shepherd_temporally_2009}. 
+% $\IQP$ circuits have exactly the form of \eqref{ibmcircuitlclass}, but with the parameters of the measurement unitary set in the following way:
+% \begin{align}
+%     U_f^{\IQP} = U_f\left(\forall k : \Gamma_k = \frac{\pi}{2\sqrt{2}}, \Delta_k = \frac{\pi}{2\sqrt{2}}, \Sigma_k =  0\right) = \bigotimes\limits_{k=1}^n \exp\left(\frac{i\pi}{2\sqrt{2}}(X_k  + Z_k)\right) \label{iqpmeasurementunitary}
+% \end{align}
+% This results in a final Hadamard gate applied to every qubit, since:
+% \begin{align}
+%     H = \frac{1}{\sqrt{2}}(X+Z)
+% \end{align}
+
+% Using only gates diagonal in the Pauli-$X$ basis, and thus which commute, make $\IQP$ \emph{instantaneous} but mean it is not able to a achieve the full power of universal quantum computation. However, it is still believed to be hard to classically simulate \citeS{bremner_classical_2011}: 
+% \begin{theorem}[informal from \citeS{bremner_classical_2011}] 
+%     \label{the:IQP mult hardness} 
+%     If the output probability distributions generated by uniform families of $\IQP$ \ circuits could be weakly classically simulated then the polynomial hierarchy ($\PH$) would collapse to its third level.
+% \end{theorem} 
+% \noindent A collapse of $\PH$ is thought to be unlikely at \textit{any} level, giving us confidence in the hardness of $\IQP$. In some sense, such a collapse to a certain level would be a generalisation of $\Pee = \NP$, which would correspond to a full collapse to the zeroth level.
+
+% \theref{the:IQP mult hardness} and similar results in \citeS{hoban_measurement-based_2014} are remarkable in their demonstration that quantum computers which are very much weaker than a universal $\BQP$ machine are still very difficult to classically simulate. In fact supremacy results of $\IQP$ also exist in the case of the more realistic variation distance error.
+
+% \begin{theorem}[informal from \citeS{bremner_average-case_2016}]\label{thm:bremnertotvarhardnessinformal}
+% 	Assume either one of two conjectures, relating to the hardness of Ising partition function and the gap of degree 3 polynomials, and the stability of the $\PH$, it is hard to classically sample from the output probability distribution of any $\IQP$ circuit in polynomial time, up to a total variation error of $\epsilon = \frac{1}{384}$.
+% \end{theorem}
+
+
+% \subsubsection{Quantum Approximate Optimisation Algorithm (\textsf{QAOA})}
+
+% The second well known class which can be recovered from \eqref{ibmcircuitlclass} is the shallowest depth version of the \textit{Quantum Approximate Optimisation Algorithm} ($\QAOA$) \citeS{farhi_quantum_2014}. The $\QAOA$ is an algorithm to approximately prepare a desired quantum state, which encodes the solution to some problem that can be extracted by measuring the final state. The canonical example is \textsf{MaxCut} \citeS{farhi_quantum_2014}, which is an example of a constraint satisfaction problem. The \textsf{QAOA} is defined in terms of a `cost' Hamiltonian, $\mathcal{H}_z$, and a `mixer' Hamiltonian, $\mathcal{H}_x$ (borrowing the terminology of \citeS{verdon_quantum_2017}). The mixer Hamiltonian is assumed to be one which has an easily prepared ground state (typically a product state), for example:
+% \begin{align}
+%     \mathcal{H}_x = \sum\limits_{i=1}^n X_i \label{qaoamixerhamiltonian}
+% \end{align}
+
+% The goal of the $\QAOA$ is to produce a ground (or thermal) state of the `cost' Hamiltonian, $\mathcal{H}_z$, which encodes some problem solution. This cost Hamiltonian can be exactly the exponent of the unitary in \eqref{diagonalunitary}, where for each $j$, $S_j \subseteq \left[n\right]$:
+% \begin{align}
+%     \mathcal{H}_z = \sum\limits_{j}\alpha_j \bigotimes\limits_{i \in S_j}Z_i \label{qaoacosthamiltonian}
+% \end{align}
+
+% In the most general form, a $\QAOA$ circuit consists of applying the unitaries \eqref{qaoamixerhamiltonian} and \eqref{qaoacosthamiltonian} in an alternating fashion. A depth $p-\QAOA$ has $p$ layers of these same gate sets acting in an alternating fashion, i.e.\@ it produces a state:
+% \begin{align}
+%     \ket{\psi_{\hat{\gamma}, \hat{\beta}}} = \prod\limits_{i=1}^p e^{-i\beta_i\mathcal{H}_x}e^{-i\gamma_i\mathcal{H}_z}\ket{+}^{\otimes n} \label{qaoageneralstate}
+% \end{align}
+% The $2p$ parameters, $\{\hat{\gamma}, \hat{\beta}\} = \{\gamma_1, \dots , \gamma_p , \beta_1, \dots, \beta_p\}$ are optimised to produce the required state, which is assumed to be difficult to prepare directly.
+
+% We are interested in the shallowest depth version of the algorithm, which produces states of the form:
+% \begin{align}
+%     \ket{\psi_{\gamma, \beta}} = e^{-i\beta\mathcal{H}_x} e^{-i\gamma\mathcal{H}_z} \ket{+}^{\otimes n} \label{qaoashallowest}
+% \end{align}
+
+% Since the mixer Hamiltonian in \eqref{qaoamixerhamiltonian} is 1-local (each term acts on only a single qubit), the evolution by the unitary $U^{\QAOA}_{f} = e^{-i\beta\mathcal{H}_x}$ can be decomposed into a tensor product of single qubit unitaries corresponding to rotations around the Pauli-$X$ axis.
+
+% The $\gamma$ parameters in \eqref{qaoashallowest} can be absorbed into the Hamiltonian parameters $\alpha_j$, and we allow $\beta$ to be different for each qubit. Therefore, it can be seen that this corresponds to the following setting of the parameters in \eqref{finalmeasurementgate}.% the $\IBM$ circuit as follows:
+% \begin{align}
+%     \label{QAOA_hamiltonian}
+%     U_f^{\QAOA} = U_f(\forall k : \Gamma_k = -\Gamma_k, \Delta_k = 0, \Sigma_k = 0) = \exp\left(-i\sum\limits_{k=1}^n \Gamma_k X_k\right)
+% \end{align}
+
+% $\QAOA$ is interesting for our purposes because of the following supremacy result.
+
+% \begin{theorem}[informal from \citeS{farhi_quantum_2016}]
+%     Given an arbitrary $\QAOA$ circuit $C$ of the form \eqref{ibmcircuitlclass} with $U_f^{\QAOA}$ as in \eqref{QAOA_hamiltonian} the probability distribution over measurement outcomes is:
+%     \begin{equation}
+%         p^{\QAOA} \left( \mathbf{x} \right) = \left|\bra{\mathbf{x}} U_f^{\QAOA}\prod\limits_{j=1}^m U_z(\alpha_j, S_j)H^{\otimes n} \ket{0}^{\otimes n}\right|^2
+%     \end{equation}
+%     If we have a poly-time randomised classical algorithm that takes as input a description of $C$ and outputs a string $\mathbf{x}$ with probability $q \left(\mathbf{x} \right)$ satisfying the multiplicative error bound\footnote{This form of multiplicative error is essentially the same as that in Definition (\ref{defnmulterror}).}:
+%     \begin{equation}
+%         \left| q \left( \mathbf{x} \right) - p^{\QAOA} \left( \mathbf{x} \right) \right| \leq 0.1 p^{\QAOA} \left( \mathbf{x} \right)
+%     \end{equation}
+%     then $\PH$ collapses.
+% \end{theorem}
+

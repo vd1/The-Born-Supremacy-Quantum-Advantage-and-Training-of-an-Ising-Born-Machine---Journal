@@ -1,0 +1,129 @@
+
+\section{Kernel Methods and the \texorpdfstring{$\MMD$}{MMD}}\label{supp_matt:kernelmethods_mmd}
+In this section, we elaborate on the kernel methods which we use and also provide relevant definitions. Kernel methods are a popular technique, for example in dimensionality reduction, and are beginning to be brought into the quantum realm \citeS{havlicek_supervised_2019, schuld_quantum_2019}. A kernel is a symmetric function, $\kappa:\mathcal{Y}\times\mathcal{Y} \rightarrow \mathbb{R}$, which is positive definite, meaning that the matrix it induces, called a \textit{Gram} matrix, is positive semi-definite.
+
+In models like support vector machines (SVM), the idea is to to \emph{embed} the underlying sample space, $\mathcal{Y}$, into a Hilbert space using a non-linear map, $\phi:\mathcal{Y} \rightarrow \mathcal{H}$ called a \emph{feature map}. A kernel is simply defined by the inner product of this feature map at two different points in a reproducing kernel Hilbert space (RKHS). Intuitively, the map should be designed to make the points more easily comparable in the RKHS.  The choice of the kernel function (i.e.\@ the choice of the RKHS) may allow different properties to be compared.  For a comprehensive review of techniques in kernel embeddings, see ref. \citeS{muandet_kernel_2017}. For all of the following, we assume that the sample space is discrete ($\mathcal{Y} = \mathcal{X}^n$) to be consistent with the main text, but the definitions we present are more generally applicable.
+
+Every feature map has a corresponding kernel, given by the inner product on the Hilbert Space:
+\begin{theorem}[Feature Map Kernel]
+    Let $\phi: \mathcal{X}^n \rightarrow \mathcal{H}$ be a feature map. The inner product of two inputs mapped to a feature space defines a kernel via:
+    \begin{align}
+        \kappa(\mathbf{x},\mathbf{y})  \coloneqq \langle\phi(\mathbf{x}),\phi(\mathbf{y}) \rangle_{\mathcal{H}} \label{featurekernel}
+    \end{align}
+\end{theorem}
+
+The full proof that this feature map gives rise to a kernel, a positive semi-definite and symmetric function, can be found in \citeS{schuld_quantum_2019} for quantum feature maps, $\phi :\mathbf{x}\rightarrow \ket{\phi(\mathbf{x})}$.
+
+
+The Hilbert Space is `\emph{reproducing}' because the inner product of the kernel at a point in the sample space, with a function on the Hilbert space, in some sense \emph{evaluates} or reproduces the function at that point:  $\langle f, \kappa(\mathbf{x}, \cdot)\rangle  = f(\mathbf{x}) \forall f \in \mathcal{H}, \mathbf{x} \in \mathcal{X}^n$. 
+
+We can also define the \emph{mean embedding}, which is a relevant quantity in the definition of the $\MMD$, and which has been defined also quantumly\citeS{kubler_quantum_2019}:
+\begin{align}
+    \mu_{p_{\boldsymbol\theta}}  \coloneqq \mathbb{E}_{p_{\boldsymbol\theta}}(\kappa(\mathbf{x}, \cdot)) =\mathbb{E}_{p_{\boldsymbol\theta}}[\phi(\mathbf{x})] \in \mathcal{H} \label{meanembedding}
+\end{align}
+
+It can be shown that the \textsf{MMD} (\eqref{mmd_metric_supp}) is exactly the difference in mean embeddings (\eqref{meanembedding}) between the two distributions, \citeS{borgwardt_integrating_2006, gretton_kernel_2007}:
+\begin{align}
+    \gamma_{\MMD}(p_{\boldsymbol\theta}, \pi) &  \coloneqq ||\mu_{p_{\boldsymbol\theta}} - \mu_{\pi}||_{\mathcal{H}}\label{mmd_mean_embedding}
+\end{align}
+
+As mentioned above, we wish to use \emph{quantum} kernels, i.e.\@ those arising as a result of an state overlap in a Quantum RKHS. This notion was first presented by ref. \citeS{schuld_quantum_2019} in which the form of the kernel assumed by is the one induced by the inner product on a quantum (i.e.\@ complex) Hilbert space:
+\begin{align}
+\kappa(\mathbf{x}, \mathbf{y}) & \coloneqq \braket{\phi(\mathbf{x})|\phi(\mathbf{y})} \label{amplitudekernel}
+\end{align}
+
+Given that we are trying to exploit some advantage by using quantum computers, this definition is natural. However, it should be noted that the above definition of a kernel defines it to be a mapping from the sample space to $\mathbb{C}$, i.e.\@ the kernel is the inner product of two wave functions which encode two samples and is therefore a transition amplitude. As mentioned in ref.\citeS{schuld_quantum_2019}, it would be desirable to find kernels which are hard to compute classically, in order to gain some quantum advantage. The first potential candidate for such a situation was derived by ref.\citeS{havlicek_supervised_2019}. As such, to remain consistent with the authors notation\citeS{havlicek_supervised_2019}, the kernel is defined as the real transition \emph{probability} instead. As mentioned \citeS{schuld_quantum_2019}, it is possible to define a kernel this way by taking the modulus squared of \eqref{amplitudekernel}, and defining the RKHS as follows:
+
+\begin{theorem}[Quantum RKHS]
+let $\Phi:\mathcal{X}\rightarrow \mathcal{H}$ be a feature map over an input set $\mathcal{X}$, giving rise to a \emph{real} kernel: $\kappa(\mathbf{x}, \mathbf{y}) = |\braket{\Phi(\mathbf{x})|\Phi(\mathbf{y})}|^2$. The corresponding RKHS is therefore:
+\begin{align}
+    \mathcal{H}_\kappa  \coloneqq \{&f:\mathcal{X} \rightarrow \mathbb{R}|\ f(\mathbf{x}) = |\braket{w|\Phi(\mathbf{x})}|^2, \forall \mathbf{x} \in \mathcal{X}, w\in \mathcal{H}\} \nonumber
+\end{align}
+\end{theorem}
+
+
+In ref.\citeS{schuld_quantum_2019}, the authors investigate kernels which are classically efficiently computable in order to facilitate testing of their classification algorithm, for example they only study so-called Gaussian states, a key ingredient in continuous variable quantum computing, \citeS{lloyd_quantum_1999}, which are known to be classically simulable. However, to gain a potential quantum advantage, we use the kernel proposed in \citeS{havlicek_supervised_2019}, which is defined by a feature map constructed by the following quantum circuit:
+\begin{align}
+    \Phi: \mathbf{x} &\in \mathcal{X}^n \rightarrow \ket{\Phi(\mathbf{x})} \label{quantumfeaturemap}\\
+    \ket{\Phi(\mathbf{x})}  \coloneqq \mathcal{U}_{\Phi(\mathbf{x})}\ket{0}^{\otimes n} &= U_{\Phi(\mathbf{x})}H^{\otimes n}U_{\Phi(\mathbf{x})}H^{\otimes n}\ket{0}^{\otimes n} \label{kernelcircuit}
+\end{align}
+so the resulting kernel is:
+\begin{align}
+    \kappa_Q(\mathbf{x}, \mathbf{y})  \coloneqq |\braket{\Phi(\mathbf{x})|\Phi(\mathbf{y})}|^2 \label{quantumkernel_app}
+\end{align}
+Of particular interest, and to add further motivation to why this particular type of circuit is chosen, is its relationship to the Ising model. This can be seen through the choice of the unitary encoding operators, $U_{\Phi(\mathbf{x})}$:
+\begin{align}
+U_{\Phi(\mathbf{x})}  \coloneqq \exp\left(i\sum\limits_{S\subseteq [n]}\phi_S(\mathbf{x})\prod\limits_{i \in S}Z_i\right) \label{kernelcircuitunitary}
+\end{align}
+This is exactly the same form as the diagonal unitary in the $\IBM$, \eqref{diagonalunitary}, with the parameters, $\theta$ replaced by the feature map with sample $\mathbf{x}$, $\phi_S(\mathbf{x})$. However, this is \emph{not} an \textsf{IQP} circuit due to the extra final layer of these diagonal gates\footnote{It is noted in \citeS{havlicek_supervised_2019} that if we only care about computing the overlap between the states to a multiplicative error (or exactly) it is sufficient to ignore the second layer of diagonal gates, $U_{\Phi(\mathbf{x})}$, in the feature map, \eqref{quantumfeaturemap}, as it will be $\#\Pee$-hard for some sample values. However, to rule out an \emph{additive} error approximation, it is necessary to add the second encoding layer.} in \eqref{kernelcircuit}. 
+
+
+It should be noted that this is experimentally favourable to work alongside the original $\IBM$ circuit since the same setup (i.e.\@ layout of entanglement gates, and single qubits rotations) is required for both circuit types, albeit with different parameters. Just like in the Ising scenario, only single and two-qubit are operations are required:
+\begin{align}
+	U_{\phi_{\{l,m\}}(\mathbf{x})} = \exp\left(i\phi_{\{l,m\}}	(\mathbf{x})Z_l\otimes Z_m\right) \qquad U_{\phi_{\{k\}}(\mathbf{x})} = \exp\left(i\phi_{\{k\}}(\mathbf{x})Z_k\right) \label{kernelgates}
+\end{align}
+
+The arguments of the gates in \eqref{kernelgates} used to encode the samples is given by:
+\begin{align}
+\phi_{\{l, m\}}(\mathbf{x})   \coloneqq \left(\frac{\pi}{4} - x_l\right)\left(\frac{\pi}{4} - x_m\right) \qquad
+\phi_{\{k\}}(\mathbf{x})  \coloneqq \frac{\pi}{4}x_k \label{quantumfeaturemapvariableencoding}
+\end{align}
+
+The choice of this kernel is motivated by ref.\citeS{havlicek_supervised_2019}, which conjectures that this overlap, \eqref{quantumkernel_app}, will be classically hard to estimate up to polynomially small error, whereas the kernel can be computed using a quantum device, up to an additive sampling error. Furthermore, the particular encoding function in \eqref{quantumfeaturemapvariableencoding} was found to be a good all-purpose encoding for classification\citeS{suzuki_analyzing_2019}. A rough bound for the number of measurements required to compute the full matrix is also given by \citeS{havlicek_supervised_2019}. The only difference is that in that case, the Gram matrix was computed using only samples from the same source. In our example, this need not be the case. We see that it in general, it requires $|B|$ samples from one source (the $\IBM$ for example), and $|D|$ samples from another (the data). The resulting Gram matrix will then be of dimension $|B| \times |D|$. However, to simplify the expressions, we can assume that we have the same number of samples from each: $|B| = |D| = T$. Therefore, directly from ref.\citeS{havlicek_supervised_2019}, to compute a single kernel entry to precision $\tilde{\epsilon} = \mathcal{O}(R^{-1/2})$ requires $R  = \mathcal{O}(\tilde{\epsilon}^{-2})$ measurement shots. Then an approximation, $\Hat{K}$, of the Gram matrix for the kernel, $K_{\mathbf{x}, \mathbf{y}} = \kappa(\mathbf{x}, \mathbf{y})$, which has $T(T - 1)$  non-trivial entries, that is $\epsilon$-close in operator norm $||K - \Hat{K}|| \leq \epsilon$ can be determined using $R = \mathcal{O}(\epsilon^{-2}T^4)$ measurement shots.
+
+Now that the kernel has been introduced, we can examine how this appears in the cost functions we use, starting with the $\MMD$. To exploit the kernel trick, we do not directly use $\gamma_{\MMD}$ in \eqref{mmd_metric_supp} as a cost, instead its squared version, which is exactly the one used in refs.\citeS{liu_differentiable_2018, du_expressive_2018} for their versions of the Born Machine:
+\begin{align}
+    \mathcal{L}_{\MMD} &  \coloneqq \gamma_{\MMD}(p_{\boldsymbol\theta}, \pi)^2 = ||\mathbb{E}_{p_{\boldsymbol\theta}}[\phi(\mathbf{x})] - \mathbb{E}_{\pi}[\phi(\mathbf{x})]||_{\mathcal{H}}^2 \label{mmdloss}
+\end{align}
+
+
+By expanding the inner product in \eqref{mmdloss}, one exactly retrieves the form seen \eqref{mmdexact}, where $\kappa$ is the $\MMD$ kernel. A requirement for the $\MMD$ to be useful (as a hypothesis test) is that the kernel used to define it must be \textit{characteristic} or universal\citeS{fukumizu_kernel_2007, sriperumbudur_injective_2008}. This is one property which allows it to be a valid metric on the space of probability distributions, with $\gamma_{\MMD}(p_{\boldsymbol\theta}, \pi) = 0 \iff p_{\boldsymbol\theta} \equiv \pi$. This enables the $\MMD$ to be used in hypothesis testing to determine if the null hypotheses ($p_{\boldsymbol\theta} = \pi$) holds or not. The Gaussian kernel (\eqref{gaussiankernel}) is indeed one which is characteristic \citeS{fukumizu_kernel_2007}, and some effort has been made to find conditions under which a kernel is characteristic \citeS{sriperumbudur_universality_2011}.
+
+In the case where the support of the distributions is discrete, as is the case here, the condition on the kernel being characteristic is \textit{strict positive definiteness} \citeS{sriperumbudur_integral_2009}. Strict positive definiteness of the kernel is defined as the resulting Gram matrix being positive definite\footnote{A matrix is positive definite $\iff$ $\forall \mathbf{x} \in \mathbb{R}^d/\mathbf{0}, \mathbf{x}^TK\mathbf{x} > 0$}. 
+
+In \citeS{sriperumbudur_integral_2009}, it is shown that the $\MMD$ can be estimated (in an unbiased way), given i.i.d.\@ samples from two distributions, $\hat{\mathbf{x}} = (\mathbf{x}^1,\dots, \mathbf{x}^N) \sim p_{\boldsymbol\theta}$, $\hat{\mathbf{y}} = (\mathbf{y}^1, \dots, \mathbf{y}^M) \sim \pi$.
+This is done by simply replacing the expectation values in \eqref{mmdexact} in the main text with their empirical values.
+\begin{align}
+      \tilde{\mathcal{L}}_{\MMD} &  \coloneqq \tilde{\gamma}_{\MMD}({p_{\boldsymbol\theta}}_N, {\pi}_M)^2 =\frac{1}{N(N-1)}\sum\limits_{i \neq j}^N \kappa(\mathbf{x}^i, \mathbf{x}^j) + \frac{1}{M(M-1)}\sum\limits_{i \neq j}^M \kappa(\mathbf{y}^i, \mathbf{y}^j) -\frac{2}{MN}\sum\limits_{i ,j}^{M, N} \kappa(\mathbf{x}^i, \mathbf{y}^j)   \label{mmdlossestimator_supp}
+\end{align}
+% Consistency is defined as convergence to the true value (of the expectation value) in the limit of large samples. For the estimator to be unbiased, the expectation value of the estimator should be equal to the true expectation value of the quantity being estimated.
+
+As shown in ref.\citeS{sriperumbudur_integral_2009}, the above \eqref{mmdlossestimator_supp} demonstrates both consistency and lack of bias, and furthermore it converges fast in probability to the true $\MMD$:
+\begin{align}
+|\tilde{\gamma}_{\MMD}({p_{\boldsymbol\theta}}_N, \pi_M)  &-\gamma_{\MMD}(p_{\boldsymbol\theta}, \pi)| \leq \mathcal{O}_{p_{\boldsymbol\theta}, \pi}(N^{-1/2} + M^{-1/2})\label{mmdsamplecomplexity}
+\end{align} 
+This quadratic convergence rate is highly desirable, since it does not depend on the dimension of the space from which the samples are drawn. 
+
+The derivation of the $\MMD$ loss estimator requires that the kernel be a bounded and measurable function. This is the case for Gaussian kernels, but we must check it holds for the quantum kernel, \eqref{quantumkernel_app}. Happily, this is the case: the overlap between two states is bounded above by $1$, and the sample space consists of binary strings.
+\begin{align}
+    \kappa_Q(\mathbf{x}, \mathbf{y}) = |\braket{\Phi(\mathbf{x})|\Phi(\mathbf{y})}|^2 \leq 1 \qquad \forall \mathbf{x}, \mathbf{y} \in \mathcal{X}
+\end{align}
+
+Now, to compute the derivative of this cost function, with respect to the parameters, $\theta_k$, we follow the method of ref.\citeS{liu_differentiable_2018}. This approach applies to all cost functions we employ in this work. In that work, the quantum gates with trainable parameters, $\eta$, are of the form $U(\eta) = \exp(-i\frac{\eta}{2}\Sigma)$, where $\Sigma$ can be a series of operators satisfying $\Sigma^2 = 1$.
+
+It is known \citeS{mitarai_quantum_2018, liu_differentiable_2018} that the gradient of an observable of the circuit, $B$, with respect to a parameter, $\eta$, is given by:
+\begin{align}
+\frac{\partial \langle B \rangle_\eta}{\partial \eta} = \frac{1}{2}\left(\langle B \rangle_{\eta^+} - \langle B \rangle_{\eta^-}\right) \label{liucircuitgradient}
+\end{align} 
+
+
+where $\eta^{\pm}$ are parameter shifted versions of the original circuits. As noted in \citeS{liu_differentiable_2018}, taking the observable to be a measurement in the computational basis, $B= M_{\mathbf{z}} =  \ket{\mathbf{z}}\bra{\mathbf{z}}$, we arrive at the following form of the gradient of the probabilities:
+\begin{align}
+\frac{\partial p_{\boldsymbol\theta}(\mathbf{z})}{\partial \theta_k} = p_{\theta_k}^{-}(\mathbf{z}) - p_{\theta_k}^{+}(\mathbf{z}) \label{mmdprobabilitygradient}
+\end{align}
+
+The factor of $-1/2$ difference with this gradient from that of ref.\citeS{liu_differentiable_2018}  is due to the slightly different parameterisation we choose, our gates are instead of the form: $\exp(i\eta\Sigma): \{D_1(b_k) =  \exp{ib_k Z_k}, D_2(J_{ij}) = \exp{iJ_{ij}Z_iZ_j}\}$.
+As mentioned above, this gradient requires computing the parameter shifted versions of the original circuit, $p_{\theta_k}^{\pm}$. This notation indicates that the $\text{k}^{th}$ parameter in the original circuit has been shifted by a factor of $\pm \frac{\pi}{2}$; $p_{\theta_k}^{\pm} = p_{\theta_k \pm \pi/2}$. This formula is actually valid for the parameter in any unitary which has \textit{at most} two distinct eigenvalues \citeS{schuld_evaluating_2018}.
+
+Using this, we arrive at the $\MMD$ gradient from the main text, \eqref{mmdgradient}, which can be approximated using the following estimator:
+\begin{align}
+\frac{\partial \mathcal{L}_{\MMD}}{\partial \theta_k} &\approx \frac{2}{PN}\sum\limits^{P,N}_{p, i}\kappa(\mathbf{a}^p, \mathbf{x}^i) - \frac{2}{QN}\sum\limits_{q,n}^{Q, N}\kappa(\mathbf{b}^q, \mathbf{x}^i)- \frac{2}{PM}\sum\limits_{p,m}^{P, M}\kappa(\mathbf{a}^p, \mathbf{y}^m) + \frac{2}{QM}\sum\limits_{q, m}^{Q, M}\kappa(\mathbf{b}^q, \mathbf{y}^m) \label{mmdgradientestimator}
+\end{align}
+where we have $P, Q$ samples, $\hat{\mathbf{a}} = \{\mathbf{a}^1,\dots, \mathbf{a}^P\}, \hat{\mathbf{b}} = \{\mathbf{b}^1,\dots, \mathbf{b}^Q\}$ drawn from the parameter shifted circuits, $ p^-_{\theta_k}(\mathbf{a}), p^+_{\theta_k}(\mathbf{b})$ respectively and $N, M$ samples, $\hat{\mathbf{x}} = \{\mathbf{x}^1,\dots, \mathbf{x}^N\}, \hat{\mathbf{y}} = \{\mathbf{y}^1,\dots, \mathbf{y}^M\}$ drawn from the the original Born circuit and the data distribution respectively, $p_{\boldsymbol\theta}(\mathbf{x}), \pi(\mathbf{y})$. The parameter shifted circuits are given in the main text (\eqref{circuit:gradientplusminuscircuit}) and repeated here for completeness:
+\begin{align}
+\Qcircuit @C=0.6em @R=1em {
+\lstick{\ket{0}^{\otimes n}} & \gate{H^{\otimes n}} & \gate{U_{l:k+1}}&\gate{U_k(\theta_k^{\pm})}&\gate{U_{k-1:1}} & \meter &\cw & \rstick{\mathbf{a}^p/\mathbf{b}^q \in \{0,1\}^n} 
+ }\nonumber\\
+\label{circuit:gradientplusminuscircuit_supp}
+\end{align}
+where the notation indicates (for $m\geq l$) $U_{l:m} = U_lU_{l-1}\dots U_{m+1}U_m$, and each gate $k$ carries one of the Ising parameters, $\boldsymbol\alpha_k$ or one of the set of measurement unitaries, $\{\mathbf{\Gamma}_k, \mathbf{\Delta}_k, \mathbf{\Sigma}_k\}$, since these also could be trained.

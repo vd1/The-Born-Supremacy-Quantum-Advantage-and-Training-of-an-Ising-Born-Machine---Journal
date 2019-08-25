@@ -1,0 +1,9 @@
+\begin{tikzpicture}[transform canvas={scale=0.09}]
+%% vertices
+\draw[fill=gray] (0,0) circle (20pt);
+\draw[fill=gray] (4,0) circle (20pt);
+\draw[fill=gray] (2,3) circle (20pt);
+%% vertex labels
+%%% edges
+\draw[gray, thick] (0,0) -- (4,0) -- (0,0) -- (2,3) -- (4,0) -- (2,3);
+\end{tikzpicture}

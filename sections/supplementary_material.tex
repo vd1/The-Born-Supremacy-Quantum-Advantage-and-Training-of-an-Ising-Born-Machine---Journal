@@ -1,0 +1,87 @@
+
+
+\subsection{Sinkhorn Training of Ising Born Machine \label{ssec:sinkhorntrainingofibm}}
+The final cost function we shall consider is the so-called \textit{Sinkhorn Divergence} ($\SH$). This is a relatively new way to compare probability distributions, \citeS{ramdas_wasserstein_2015, genevay_learning_2017, feydy_interpolating_2018}. As discussed above, the Stein Discrepancy still is not totally suitable for our purposes. While it seems to be a stronger cost function than the $\MMD$, it may have exponential complexity required to compute the probabilities required in the score function. It seems we have overshot the mark. Now, can we find some middle ground? In other words, does there exist a cost function we can choose, which is still `stronger' than the $\MMD$, but easier to compute than the $\SD$. 
+
+As motivated by our introduction of the $\SD$, a stronger distance would presumably provide better results than the $\MMD$ for generative modelling. Firstly, we may consider the Wasserstein or Kantorovich Metric, \eqref{kantorovichmetric}. The Wasserstein Metric happens to be a special case of so-called \textit{optimal transport}. The solution of the `optimal transport' problem gives the optimal way to move, or transport, probability mass from one distribution to another, and hence gives a means of determining distribution similarity. This problem of optimal transport has been widely studied, and has a rich history, so we refer to \citeS{villani_optimal_2009} for a thorough treatment.
+
+The Optimal Transport Distance is given by:
+\begin{align}
+\OT^c(p, q) = \min\limits_{U \in \mathcal{U}(P, Q)}\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} c(\mathbf{x}, \mathbf{y}) U(\mathbf{x}, \mathbf{y}) \label{otdistance}
+\end{align}
+where $P, Q$ are the marginal distributions of $U$, i.e.\@\@ $\mathcal{U}(P, Q)$ is the space of joint distributions over $\mathcal{X}\times\mathcal{Y}$ such that $\sum_{\mathbf{x}}U(\mathbf{x}, \mathbf{y}) = Q(\mathbf{y}), \sum_{\mathbf{y}}U(\mathbf{x}, \mathbf{y}) = P(\mathbf{x})$, in the discrete case. $c(\mathbf{x}, \mathbf{y})$ is the `\textit{cost}' of transporting an individual `point', $\mathbf{x}$, to another point $\mathbf{y}$. It somewhat plays a similar role to the kernel function in the $\MMD$. If we take the optimal transport `cost', to be a metric on the sample space, $\mathcal{X}\times \mathcal{Y}$, i.e.\@ $c(\mathbf{x}, \mathbf{y}) = d(\mathbf{x}, \mathbf{y})$ we get the Wasserstein metric, which turns out to be equivalent to  the Kantorovich Metric, revealing the connection to the IPMs discussed in Section \ref{ssec:costfunctionsforibm}:
+\begin{align}
+W^d(P, Q) = \min\limits_{U \in \mathcal{U}(P, Q)}\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}^2} d(\mathbf{x}, \mathbf{y}) U(\mathbf{x}, \mathbf{y}) \label{1wasserstein}
+\end{align}
+
+The Wasserstein Metric has become very popular in classical ML literature, for example in the definition of an Generative Adversarial Network (WGAN) \citeS{arjovsky_wasserstein_2017}\footnote{GANs are alternative generative models, which train \textit{adversarially} via a competition between two neural networks, one \textit{discriminator}, and one \textit{generator}. Quantum models of GANs have also been defined, for example, \citeS{lloyd_quantum_2018, dallaire-demers_quantum_2018} and an experimental implementation \citeS{hu_quantum_2019}.}. 
+
+However, it does suffer from a severe drawback;  In $d$ dimensions, its sample complexity scales as $O(1/N^{1/d})$, and furthermore it is difficult to compute. As a remedy to this, \textit{regularisation} was introduced in order to smooth the problem, and ease computation, which is a standard technique in ML to prevent overfitting.
+
+Now, as noted in \citeS{cuturi_sinkhorn_2013}, (one) regularised version of optimal transport introduces an entropy term, in the form of the $\KL$ Divergence as follows:
+\begin{align}
+\OT^c_\epsilon(P, Q) &=  \min\limits_{U \in \mathcal{U}(P, Q)}\left(\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} c(\mathbf{x}, \mathbf{y})U(\mathbf{x}, \mathbf{y}) + \epsilon \KL(U|P \otimes Q)\right) \label{wassersteinregularised}\\
+\KL(U|P \otimes Q) &\equiv \sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} U(\mathbf{x}, \mathbf{y}) \log\left(\frac{U(\mathbf{x}, \mathbf{y})}{(P\otimes Q )(\mathbf{x}, \mathbf{y})}\right)
+\end{align}
+It turns out that the regularised version allows a cost function to be defined, which interpolates between the Wasserstein, and the $\MMD$. As such, it allows one to take advantage of the small sample complexity, and therefore ease of computability of the $\MMD$, but the desirable properties of the Wasserstein Distance.
+
+The relative entropy term serves to determine how distant the coupling distribution, $\pi$, is from a product distribution $P\otimes Q$,  and effectively smooths the problem, such that it becomes more efficiently solvable. Based on this, \citeS{genevay_learning_2017, feydy_interpolating_2018} define the \textit{Sinkhorn Divergence} which we can appropriate for the $\IBM$:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi) = \OT^c_\epsilon(p_\theta, \pi) - \frac{1}{2} \OT^c_\epsilon(p_\theta, p_\theta) -\frac{1}{2}\OT^c_\epsilon(\pi, \pi) \label{sinkhorndivergence}
+\end{align}
+As shown by \citeS{feydy_interpolating_2018}, as $\epsilon \rightarrow 0$, (\ref{sinkhorndivergence}) becomes the unregularised Optimal Transport distance: $\mathcal{L}_{\SH}^0(p_\theta, \pi)\underset{\epsilon \rightarrow 0}{\rightarrow} \OT^c(p_\theta, \pi)$, and as $\epsilon \rightarrow \infty$, (\ref{sinkhorndivergence}) becomes the $\MMD$ with a kernel given by the negative of the Sinkhorn cost, $\kappa(\mathbf{x}, \mathbf{y}) = -c(\mathbf{x}, \mathbf{y})$: $\mathcal{L}_{\SH}^\epsilon(p_\theta, \pi) \underset{\epsilon \rightarrow \infty}{\rightarrow} \MMD_{-c}(p, \pi)$. The extra terms in (\ref{sinkhorndivergence}) relative to \eqref{otdistance} ensure the Sinkhorn Divergence is unbiased, since $\OT^c_\epsilon(P, P) \neq 0$ in general.
+
+Now, similarly to the previous two cost functions, we can derive gradients of the Sinkhorn Divergence, with respect to the given parameter, $\theta_k$. According to \citeS{feydy_interpolating_2018}, each term in (\ref{sinkhorndivergence}) can be written as follows:
+\begin{align}
+    \OT^c_\epsilon(p_\theta, \pi) &= \langle p_\theta, f \rangle +  \langle \pi, g \rangle \nonumber \\
+    & =\sum\limits_\mathbf{x} p_\theta(\mathbf{x})f(\mathbf{x}) + \pi(\mathbf{x})g(\mathbf{x})
+\end{align}
+$f$ and $g$ are the so-called optimal Sinkhorn potentials, arising from a primal-dual formulation of optimal transport. These are computed using the Sinkhorn Algorithm, which gives the divergence its name, \citeS{sinkhorn_relationship_1964}. These vectors will be initialised at $f^0(\mathbf{x}) = 0 = g^0(\mathbf{x})$, and iterated in tandem according to (\ref{sinkhorndualvectors}) for a fixed number of `Sinkhorn iterations' until convergence. The number of iterations required will depend on the value of $\epsilon$, and the specifics of the problem. Typically, smaller values of epsilon will require more iterations, since this is bringing the problem closer to unregularised optimal transport, which is more challenging to compute. For further discussions on regularised optimal transport and its dual formulation, see \citeS{peyre_computational_2018, feydy_interpolating_2018}. Now, following \citeS{feydy_interpolating_2018}, the $\SH$ can be written as:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi) = \sum\limits_\mathbf{x}& \left[p_\theta(\mathbf{x})\left(f(\mathbf{x}) - s(\mathbf{x})\right)
+    + \pi(\mathbf{x})\left(g(\mathbf{x}) - t(\mathbf{x})\right)\right] \label{sinkhorndualformulation}
+\end{align}
+
+
+$s, t$ are the `\textit{autocorrelation}' dual potentials, arising from the terms $\OT^c_\epsilon(p_\theta, p_\theta)$, $\OT^c_\epsilon(\pi, \pi)$ in (\ref{sinkhorndivergence}).
+
+The reader should note that in (\ref{sinkhorndualformulation}), the dependence on the data distribution, $\pi$, is hidden in the dual vector, $f$. Following \citeS{feydy_interpolating_2018}, we can see how by discretising the situation based on $N, M$ samples from $p_\theta, \pi$ respectively; $ \hat{\mathbf{x}} = \{\mathbf{x}^1, \dots, \mathbf{x}^N\}\sim p_\theta(\mathbf{x}),  \hat{\mathbf{y}} =\{\mathbf{y}^1, \dots, \mathbf{y}^M\} \sim \pi(\mathbf{y})$. With this, the optimal dual vectors, $f, g$ are given by:
+\begin{align}
+    f^{l+1}(\mathbf{x}^i) &= -\epsilon \text{LSE}_{k=1}^M\left(\log\left(\pi(\mathbf{\mathbf{y}}^k) + \frac{1}{\epsilon}g^{l}(\mathbf{y}^k) - \frac{1}{\epsilon} C_{ik}(\mathbf{x}^i, \mathbf{y}^k)\right)\right)\\
+    g^{l+1}(\mathbf{y}^j) &= -\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_\theta(\mathbf{x}^k) + \frac{1}{\epsilon}f^{l}(\mathbf{x}^k) - \frac{1}{\epsilon} C_{kj}(\mathbf{x}^k, \mathbf{y}^j)\right)\right) \label{sinkhorndualvectors}
+\end{align}
+
+
+
+$C(\mathbf{x}, \mathbf{y})$ is the so-called optimal transport \textit{cost matrix} derived from the cost function applied to all samples, $C_{ij}(\mathbf{x}^i, \mathbf{y}^j) = c(\mathbf{x}^i, \mathbf{y}^j)$ and $\text{LSE}_{k=1}^N(\mathbf{V}_k) = \log\sum\limits_{k=1}^N\exp(\mathbf{V}_k)$ is a log-sum-exp reduction for a vector $\mathbf{V}$, used to give a smooth approximation to the true dual potentials.
+
+The autocorrelation potential, $s$, is given by:
+\begin{align}
+    s(\mathbf{x}^i) &= -\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_\theta(\mathbf{\mathbf{x}}^k) + \frac{1}{\epsilon}s(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}^i, \mathbf{x}^k)\right)\right) \label{autocorrelationsinkhornterms}
+\end{align}
+$t(\mathbf{y}^i)$ can be derived similarly by replacing $p_\theta \rightarrow \pi$ in (\ref{autocorrelationsinkhornterms}) above. However, the autocorrelation dual can be found using a well-conditioned fixed point update \citeS{feydy_interpolating_2018}, and convergence to the optimal potentials can be observed with much fewer Sinkhorn iterations, $l$:
+\begin{align}
+    s(\mathbf{x}^i) &\leftarrow \frac{1}{2}\left[s(\mathbf{x}^i)-\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_\theta(\mathbf{\mathbf{x}^k}) + \frac{1}{\epsilon}s(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}^i, \mathbf{x}^k)\right)\right)\right] \label{autocorrelationsinkhorntermsupdate}
+\end{align}
+
+Of course, now that we have discussed how to compute the Sinkhorn Divergence, it is time to examine its gradient with respect to the circuit parameters, as usual.
+The gradient of $\mathcal{L}^\epsilon_{\SH}$ with respect to a single probability of the \textit{observed} samples, $p_\theta(\mathbf{x}^i)$ is given by \citeS{feydy_interpolating_2018}:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi)}{\partial p_\theta(\mathbf{x}^i)} = f(\mathbf{x}^i) - s(\mathbf{x}^i)
+\end{align}
+However, this only applies to the samples which have been \textit{used} to compute $f, s$ in the first place. If one encounters a sample from $p_{\theta_k^{\pm}}$ (which we shall in the gradient), $\mathbf{x}^s$, which one has not seen in the original samples from $p_\theta$, one has no value for the corresponding vectors at this point $f(\mathbf{x}^s), s(\mathbf{x}^s)$. Fortunately, as shown in \citeS{feydy_interpolating_2018}, the gradient does extend smoothly to this point (and all points in the sample space) and in general is given by:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi)}{\partial p_\theta(\mathbf{x})} &= \varphi(\mathbf{x}) \\
+    \varphi(\mathbf{x}) &= -\epsilon \text{LSE}_{k=1}^M\left(\log\left(\pi(\mathbf{\mathbf{y}}^k) + \frac{1}{\epsilon}g^{0}(\mathbf{y}^k) - \frac{1}{\epsilon} C(\mathbf{x}, \mathbf{y}^k)\right)\right)\nonumber\\
+    &+ \epsilon \text{LSE}_{k=1}^N\left(\log\left(p_\theta(\mathbf{\mathbf{y}^k}) + \frac{1}{\epsilon}s^{0}(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}, \mathbf{x}^k)\right)\right)
+\end{align}
+Where $g^{(0)}, s^{(0)}$, are the optimal vectors which solve the original optimal transport problem, (\ref{sinkhorndualvectors}, \ref{autocorrelationsinkhornterms}) at convergence, given the samples, $\hat{\mathbf{x}}, \hat{\mathbf{y}}$ from $p_\theta, \pi$ respectively.
+Given this, the gradient of the Sinkhorn Divergence with respect to the parameters, $\theta_k$ is given by:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi)}{\partial \theta_k} &= \sum\limits_{\mathbf{x}}\frac{\partial \mathcal{L}_{\SH}^\epsilon(p_\theta, \pi)}{\partial p_\theta(\mathbf{x})}\frac{\partial p_\theta(\mathbf{x})}{\partial \theta_k} \nonumber\\
+    & = \sum\limits_\mathbf{x}\varphi(\mathbf{x})\left(p_{\theta^-_k}(\mathbf{x}) - p_{\theta^+_k}(\mathbf{x})\right) \nonumber \\
+    & = \underset{\substack{\mathbf{x} \sim p_{\theta_k^-} }}{\mathbb{E}}[\varphi(\mathbf{x})] 
+    -\underset{\substack{\mathbf{x} \sim p_{\theta_k^+}  }}{\mathbb{E}}[\varphi(\mathbf{x})] \label{sinkhorngradient}
+\end{align}
+ Therefore, one can compute the gradient by drawing samples from the distributions, $\hat{\mathbf{x}} \sim p_{\theta_k^\pm}$, and computing the vector $\varphi(\mathbf{x})$ , for each sample, $\mathbf{x} \in \hat{\mathbf{x}}$, using the vectors, $g^{(0)}, s^{(0)}$ already computed during the evaluation of $\SH$ at each epoch.
+

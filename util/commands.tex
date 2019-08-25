@@ -1,0 +1,95 @@
+\newcommand{\defref}[1]{Definition \ref{#1}}
+\newcommand{\secref}[1]{Section \ref{#1}}
+\newcommand{\appref}[1]{Supplementary Material Section \ref{#1}}
+\newcommand{\theref}[1]{Theorem \ref{#1}}
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\renewcommand{\eqref}[1]{equation (\ref{#1})}
+\renewcommand{\algref}[1]{Algorithm \ref{#1}}
+
+
+% \newcommand{\comment}[1]{\footnote{\color{red} \MakeUppercase{comment}: #1}}
+\newcommand{\comment}[1]{\footnote{}}
+
+\newcommand{\tr}{\textsf{tr}}
+
+\newcommand{\BQP}{\textsf{BQP}}
+\newcommand{\BPP}{\textsf{BPP}}
+\newcommand{\IBM}{\textsf{IBM}}
+\newcommand{\Data}{\textsf{Data}}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\MMD}{\textsf{MMD}}
+\DeclareMathOperator{\SD}{\textsf{SD}}
+\DeclareMathOperator{\SH}{\textsf{SHD}}
+\DeclareMathOperator{\W}{\textsf{W}}
+\DeclareMathOperator{\OT}{\textsf{OT}}
+\DeclareMathOperator{\KL}{\textsf{KL}}
+
+\DeclareMathOperator{\Bigeps}{\mathcal{E}}
+
+
+\DeclareMathOperator{\TV}{\textsf{TV}}
+\DeclareMathOperator{\BosonSampling}{\textsf{BosonSampling}}
+
+\DeclareMathOperator{\QAOA}{\textsf{QAOA}}
+\DeclareMathOperator{\PH}{\textsf{PH}}
+\DeclareMathOperator{\NP}{\textsf{NP}}
+
+\DeclareMathOperator{\EVAL}{\textsf{EVAL}}
+\DeclareMathOperator{\GEN}{\textsf{GEN}}
+
+\DeclareMathOperator{\C}{\textsf{C}}
+
+\DeclareMathOperator{\IQP}{\textsf{IQP}}
+\DeclareMathOperator{\PP}{\textsf{PP}}
+\DeclareMathOperator{\IQPy}{\textsf{IQP}_y}
+\DeclareMathOperator{\PQAOA}{\textsf{PostQAOA}}
+\DeclareMathOperator{\PIQP}{\textsf{PostIQP}}
+\DeclareMathOperator{\PIQPy}{\textsf{PostIQP}_y}
+\DeclareMathOperator{\PBQP}{\textsf{PostBQP}}
+\DeclareMathOperator{\PBPP}{\textsf{PostBPP}}
+\DeclareMathOperator{\PQ}{\textsf{PostQ}}
+\DeclareMathOperator{\Pee}{\textsf{P}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{definition}{Definition}[section]
+
+\newcommand{\revneg}{\mathrel{\reflectbox{\rotatebox[origin=c]{180}{$\neg$}}}}
+
+\newcommand{\todo}[1]{\noindent {\color{red} [TODO: #1]}}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+
+\newenvironment{changemargin}[2]{%
+\begin{list}{}{%
+\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{#1}%
+\setlength{\rightmargin}{#2}%
+\setlength{\listparindent}{\parindent}%
+\setlength{\itemindent}{\parindent}%
+\setlength{\parsep}{\parskip}%
+}%
+\item[]}{\end{list}}
+
+\DeclareUnicodeCharacter{2212}{-}
+% \DeclareUnicodeCharacter{31}{_}
+\renewcommand{\cftsubsecfont}{\hypersetup{linkcolor=black}}
+\renewcommand{\cftsubsubsecfont}{\hypersetup{linkcolor=black}}
+
+
+\definecolor{ForestGreen}{RGB}{34, 139, 34}
+% 0-191-255	
+\definecolor{DeepSkyBlue}{RGB}{0, 191,255}
+% 230-230-250	
+\definecolor{Lavender}{RGB}{230, 230, 250}
+\newcommand\crule[3][black]{\textcolor{#1}{\rule{#2}{#3}}}
+
+
+% \newcommand*{\defeq}{\mathrel{\rlap{%
+%                      \raisebox{0.3ex}{$\m@th\cdot$}}%
+%                      \raisebox{-0.3ex}{$\m@th\cdot$}}%
+%                      =}

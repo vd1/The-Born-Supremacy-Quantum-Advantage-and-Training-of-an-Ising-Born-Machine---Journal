@@ -1,0 +1,46 @@
+\section{Supremacy of Quantum Learning}
+\label{supp_mat:superioritydefinitions}
+
+Here we provide, to the best of our knowledge, the first formalisation of what we call `\textit{quantum learning supremacy}' (QLS), specifically for distribution learning. We model our definitions around those provided in ref.\citeS{kearns_learnability_1994}, which pertain to the theory of classical distribution learnability. 
+
+As discussed in the main text, intuitively a generative quantum machine learning algorithm can be said to have demonstrated QLS, if it is possible to efficiently learn a representation of a distribution which for which there does not exist a classical learning algorithm achieving the same end. More specifically, the quantum device has the ability to produce samples according to a distribution that is close in total variation to some distribution, using a polynomial number of samples from that distribution. However, there should be no classical algorithm which could achieve this. 
+We now formalise this intuition. First we must understand the inputs and outputs to learning algorithm. The inputs are samples from the distribution to be learnt, either classical bitstrings, or which could be quantum states encoding a superposition of such bitstring states, i.e.\@ \textit{qsamples} \citeS{schuld_supervised_2018}. A generator can be interpreted as a routine that simulates sampling from the distribution. As in ref.\citeS{kearns_learnability_1994}, we will assume only discrete distribution classes, $\mathcal{D}_n$, over binary vectors of length $n$.%, $\{0, 1\}^n$ 
+
+\begin{definition}[Generator \citeS{kearns_learnability_1994}]\label{defn:generator_supp}
+    A class of distributions, $\mathcal{D}_n$ has efficient Generators, $\GEN_{D}$, if for every distribution $D \in \mathcal{D}_n$, $\GEN_{D}$ produces samples in $\{0, 1\}^n$ according to the exact distribution $D$, using polynomial resources.
+    % The Generator is \emph{efficient} if its size is polynomial in $n$.
+    The generator may take a string of uniformly random bits, of size polynomial in $n$, $r(n)$, as input.
+\end{definition}
+
+The reader will notice that this definition allows, for example, for the Generator to be either a classical circuit, or a quantum circuit, with polynomially many gates. Further, in the definition of a classical Generator \citeS{kearns_learnability_1994} a string of uniformly random bits is taken as input, and then transformed into the randomness of $D$. However, a quantum Generator would be able to produce its own randomness and so no such input is necessary. In this case the algorithm could ignore the input string $r(n)$. 
+
+While we are predominately interested in efficient learning with a Generator, one can also define a similar \textit{Evaluator}:
+\begin{definition}[Evaluator \citeS{kearns_learnability_1994}]\label{defn:evaluator_supp}
+     A class of distributions, $\mathcal{D}_n$ has efficient Evaluators, $\EVAL_{D}$, if for every distribution $D \in \mathcal{D}_n$, $\EVAL_{D}$ produces the weight of an input $\mathbf{y}$ in $\{0, 1\}^n$ under the exact distribution $D$, i.e.\@ the probability of $\mathbf{y}$ according to $D$. The Evaluator is \emph{efficient} if it uses polynomial resources.
+\end{definition}
+
+The distinction between $\EVAL$ and $\GEN$ is important and interesting in this case since the output probabilities of even $\IQP$ circuits are $\#\Pee$-Hard to compute\citeS{bremner_classical_2011} and also hard to sample from by classical means, yet the distributions they produce can be sampled from efficiently by a quantum computer. This draws parallels to examples in ref.\citeS{kearns_learnability_1994} where certain classes of distributions are shown not to be learnable efficiently with an Evaluator, but they \textit{are} learnable with a Generator. We also wish to highlight the connections to the definitions of strong and weak simulators of quantum circuits, \defref{defn:strong_weak_sim} to reinforce the similarity between Supremacy and Learning. An Evaluator for a quantum circuit would be a strong simulator of it, and a Generator would be a weak simulator. However, we keep these definitions separate in order to connect the hardness and learnability ideas explicitly.
+
+For our purposes, the following definitions of learnable will be used. In contrast to ref.\citeS{kearns_learnability_1994}, who was concerned with defining a `good' generator to be one which achieves closeness relative to the Kullback-Leibler ($\KL$) divergence, we wish to expand this to general cost functions, $d$. This is due to the range of cost functions we have access to and our wish to connect to the quantum circuit hardness results mentioned above, which typically strive for closeness in $\TV$. % As such, we can define what it means to be a `good' generator, relative to a cost function (or metric), $d$, by extending Definition $3$ in \citeS{kearns_learnability_1994}:
+\begin{definition}[$\left( d , \epsilon \right)$-Generator]
+    For a cost function, $d$, let $D \in \mathcal{D}_n$. Let $\GEN_{D'}$ be a Generator for a distribution $D'$. We say $\GEN$ is a $\left( d , \epsilon \right)$-Generator for $D$ if $d(D, D') \leq \epsilon$.
+\end{definition}
+A similar notion of an $\epsilon$-good Evaluator could be defined.
+
+\begin{definition}[$\left( d , \epsilon, \C \right)$-Learnable]
+    \label{def:weak_learnable_supp}
+    For a metric $d$, $\epsilon > 0$, and complexity class $\C$, a class of distributions $\mathcal{D}_n$ is called $\left( d , \epsilon, C \right)$-learnable (with a Generator) if there exists an algorithm $\mathcal{A} \in \C$, called a learning algorithm for $\mathcal{D}_n$, which given $0 < \delta < 1$ as input, and given access to $\GEN_{D}$ for any distribution $D \in \mathcal{D}_n$, outputs $\GEN_{D'}$, a $\left( d , \epsilon \right)$-Generator for $D$, with high probability:
+    \begin{equation}
+        Pr \left[ d \left( D, D' \right) \leq \epsilon \right] \geq 1 - \delta
+    \end{equation}
+    $\mathcal{A}$ should run in time $poly(1/\epsilon, 1/\delta, n)$.
+\end{definition}
+
+In \defref{def:weak_learnable_supp}, $\epsilon$ may, for example, be a function of the inputs to the learning algorithm. We may also wish to require a learnability definition which holds for all $\epsilon > 0$. This definition would, however, be too strong for our purposes. In order to claim quantum learning supremacy of a learning algorithm, we only need to achieve closeness up to a \textit{fixed} $\TV$ distance, as mentioned in the main text, and discussed in detail in \appref{supp_mat:superioritydefinitions}. An illustration of the procedure can be seen in \figref{subfig:generator}. Finally, we define what it would mean for a quantum algorithm to be superior to any classical algorithm for the problem of distribution learning, in a definition:
+
+\begin{definition}[Quantum Learning Supremacy]    
+    \label{defn:superiority_supp}
+    An algorithm $\mathcal{A} \in \BQP$ is said to have demonstrated the supremacy of quantum learning over classical learning if there exists a class of distributions $\mathcal{D}_n$ for which there exists $d ,\epsilon$ such that $\mathcal{D}_n$ is $\left( d ,\epsilon, \BQP \right)$-Learnable, but $\mathcal{D}_n$ is not $\left( d ,\epsilon, \BPP \right)$-Learnable.
+\end{definition}
+
+As mentioned above, a typical choice of $d$ would be $d = \TV$, but one could imagine weaker definitions by using weaker cost functions. One may also be more restrictive and look for a demonstration of learning superiority by a class which was efficiently $\IQP$-Learnable, but not $\BPP$-Learnable. This case may be more challenging to prove theoretically, but may be more amenable for the near term, precisely the original motivation for quantum supremacy, and, indeed, implies \defref{defn:superiority_supp}.

@@ -1,0 +1,189 @@
+
+
+\section{Sinkhorn Divergence \& Sample Complexity \label{supp_matt:sinkhorn}}
+In this section, we provide more details on the Sinkhorn Divergence used in the main text, and proofs of the sample complexity results, specifically the mean error and the concentration bound \eqref{sinkhorn_expectation_sample_chosen_MAIN}, 
+\eqref{sinkhornborn_samplecomplexity_choosed_MAIN} respectively.
+
+It seems natural to expect that a stronger metric would presumably provide better results than the $\MMD$ for generative modelling. Firstly, we may consider the Kantorovich Metric, \eqref{kantorovichmetric}. The Kantorovich Metric happens to be a special case of so-called \textit{optimal transport} due to the famous  Kantorovich-Rubinstein duality\citeS{dudley_real_2002} which reveals a connection to the Wasserstein metric, as mentioned above. The solution of the `optimal transport' problem gives the optimal way to move, or transport, probability mass from one distribution to another, and hence gives a means of determining distribution similarity. 
+
+The Optimal Transport Distance is given by:
+\begin{align}
+\OT^c(p, q)  \coloneqq \min\limits_{U \in \mathcal{U}(p, q)}\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} c(\mathbf{x}, \mathbf{y}) U(\mathbf{x}, \mathbf{y}) \label{otdistance_supp}
+\end{align}
+where $p, q$ are the marginal distributions of $U$, i.e.\@\@ $\mathcal{U}(p, q)$ is the space of joint distributions over $\mathcal{X}\times\mathcal{Y}$ such that $\sum_{\mathbf{x}}U(\mathbf{x}, \mathbf{y}) = q(\mathbf{y}), \sum_{\mathbf{y}}U(\mathbf{x}, \mathbf{y}) = p(\mathbf{x})$, in the discrete case. $c(\mathbf{x}, \mathbf{y})$ is the `\textit{cost}' of transporting an individual `point', $\mathbf{x}$, to another point $\mathbf{y}$. It somewhat plays a similar role to the kernel function in the $\MMD$. If we take the optimal transport `cost', to be a metric on the sample space, $\mathcal{X}\times \mathcal{Y}$, i.e.\@ $c(\mathbf{x}, \mathbf{y}) = d(\mathbf{x}, \mathbf{y})$ we get the Wasserstein metric, which turns out to be equivalent to  the Kantorovich Metric, revealing the connection to the IPMs discussed in \appref{supp_matt:cf_and_ipms}:
+\begin{align}
+W^d(P, Q)  \coloneqq \min\limits_{U \in \mathcal{U}(P, Q)}\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}^2} d(\mathbf{x}, \mathbf{y}) U(\mathbf{x}, \mathbf{y}) \label{1wasserstein_supp}
+\end{align}
+
+\noindent The Wasserstein Metric has become very popular in classical ML literature, for example in the definition of an Generative Adversarial Network\citeS{arjovsky_wasserstein_2017} (WGAN) \footnote{GANs are alternative generative models, which train \textit{adversarially} via a competition between two neural networks, one \textit{discriminator}, and one \textit{generator}. Quantum models of GANs have also been defined, for example, \citeS{lloyd_quantum_2018, dallaire-demers_quantum_2018} and an experimental implementation \citeS{hu_quantum_2019}.}. 
+
+However, it does suffer from a severe drawback;  In $n$ dimensions, its sample complexity scales as $O(1/N^{1/n})$, and furthermore it is difficult to compute. As a remedy to this, \textit{regularisation} was introduced in order to smooth the problem, and ease computation, which is a standard technique in ML to prevent overfitting.
+
+Now, as noted in ref.\citeS{cuturi_sinkhorn_2013}, (one) regularised version of optimal transport introduces an entropy term, in the form of the $\KL$ Divergence as follows, to repeat \eqref{wassersteinregularised}:
+\begin{align}
+\OT^c_\epsilon(p, q) & \coloneqq  \min\limits_{U \in \mathcal{U}(p, q)}\left(\sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} c(\mathbf{x}, \mathbf{y})U(\mathbf{x}, \mathbf{y}) + \epsilon \KL(U|p \otimes q)\right) \label{wassersteinregularised_supp}\\
+\KL(U|p \otimes q) &\equiv \sum\limits_{(\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times\mathcal{Y}} U(\mathbf{x}, \mathbf{y}) \log\left(\frac{U(\mathbf{x}, \mathbf{y})}{(p\otimes q )(\mathbf{x}, \mathbf{y})}\right)
+\end{align}
+
+
+\noindent It turns out that the regularised version allows a cost function to be defined, which interpolates between the Wasserstein, and the $\MMD$. As such, it allows one to take advantage of the small sample complexity, and therefore ease of computability of the $\MMD$, but the desirable properties of the Wasserstein Distance.
+
+The relative entropy term serves to determine how distant the coupling distribution, $\pi$, is from a product distribution $p\otimes q$,  and effectively smooths the problem, such that it becomes more efficiently solvable. Based on this, refs.\citeS{genevay_learning_2017, feydy_interpolating_2018} define the \textit{Sinkhorn Divergence} which we can appropriate for the $\IBM$:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi)  \coloneqq \OT^c_\epsilon(p_{\boldsymbol\theta}, \pi) - \frac{1}{2} \OT^c_\epsilon(p_{\boldsymbol\theta}, p_{\boldsymbol\theta}) -\frac{1}{2}\OT^c_\epsilon(\pi, \pi) \label{sinkhorndivergence_supp}
+\end{align}
+As mentioned in the main text, for extreme values of $\epsilon$, we recover both the $\MMD$ and unregularised optimal transport. The extra terms in \eqref{sinkhorndivergence_supp} relative to \eqref{otdistance_supp} ensure the Sinkhorn Divergence is unbiased, since $\OT^c_\epsilon(p, p) \neq 0$ in general.
+
+Now, similarly to the previous two cost functions, we can derive gradients of the Sinkhorn Divergence, with respect to the given parameter, $\theta_k$. According to ref.\citeS{feydy_interpolating_2018}, each term in \eqref{sinkhorndivergence_supp} can be written as follows:
+\begin{align}
+    \OT^c_\epsilon(p_{\boldsymbol\theta}, \pi) &= \langle p_{\boldsymbol\theta}, f \rangle +  \langle \pi, g \rangle \nonumber \\
+    & =\sum\limits_\mathbf{x} p_{\boldsymbol\theta}(\mathbf{x})f(\mathbf{x}) + \pi(\mathbf{x})g(\mathbf{x})
+\end{align}
+$f$ and $g$ are the so-called optimal Sinkhorn potentials, arising from a primal-dual formulation of optimal transport. These are computed using the Sinkhorn algorithm, which gives the divergence its name\citeS{sinkhorn_relationship_1964}. These vectors will be initialised at $f^0(\mathbf{x}) = 0 = g^0(\mathbf{x})$, and iterated in tandem according to \eqref{sinkhorndualvectors_supp} for a fixed number of `Sinkhorn iterations' until convergence. The number of iterations required will depend on the value of $\epsilon$, and the specifics of the problem. Typically, smaller values of epsilon will require more iterations, since this is bringing the problem closer to unregularised optimal transport, which is more challenging to compute. For further discussions on regularised optimal transport and its dual formulation, see refs.\citeS{feydy_interpolating_2018, peyre_computational_2018}. Now, following ref. \citeS{feydy_interpolating_2018}, the $\SH$ can be written on a discrete space as:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) = \sum\limits_\mathbf{x}& \left[p_{\boldsymbol\theta}(\mathbf{x})\left(f(\mathbf{x}) - s(\mathbf{x})\right)
+    + \pi(\mathbf{x})\left(g(\mathbf{x}) - t(\mathbf{x})\right)\right] \label{sinkhorndualformulation_supp}
+\end{align}
+
+
+$s, t$ are the `\textit{autocorrelation}' dual potentials, arising from the terms $\OT^c_\epsilon(p_{\boldsymbol\theta}, p_{\boldsymbol\theta})$, $\OT^c_\epsilon(\pi, \pi)$ in \eqref{sinkhorndivergence_supp}.
+
+The reader should note that in \eqref{sinkhorndualformulation_supp}, the dependence on the data distribution, $\pi$, is hidden in the dual vector, $f$. Following ref.\citeS{feydy_interpolating_2018}, we can see how by discretising the situation based on $N, M$ samples from $p_{\boldsymbol\theta}, \pi$ respectively; $ \hat{\mathbf{x}} = \{\mathbf{x}^1, \dots, \mathbf{x}^N\}\sim p_{\boldsymbol\theta}(\mathbf{x}),  \hat{\mathbf{y}} =\{\mathbf{y}^1, \dots, \mathbf{y}^M\} \sim \pi(\mathbf{y})$. With this, the optimal dual vectors, $f, g$ are given by:
+\begin{align}
+    f^{l+1}(\mathbf{x}^i) &= -\epsilon \text{LSE}_{k=1}^M\left(\log\left(\pi(\mathbf{\mathbf{y}}^k) + \frac{1}{\epsilon}g^{l}(\mathbf{y}^k) - \frac{1}{\epsilon} C_{ik}(\mathbf{x}^i, \mathbf{y}^k)\right)\right)\\
+    g^{l+1}(\mathbf{y}^j) &= -\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_{\boldsymbol\theta}(\mathbf{x}^k) + \frac{1}{\epsilon}f^{l}(\mathbf{x}^k) - \frac{1}{\epsilon} C_{kj}(\mathbf{x}^k, \mathbf{y}^j)\right)\right) \label{sinkhorndualvectors_supp}
+\end{align}
+
+
+
+$C(\mathbf{x}, \mathbf{y})$ is the so-called optimal transport \textit{cost matrix} derived from the cost function applied to all samples, $C_{ij}(\mathbf{x}^i, \mathbf{y}^j) = c(\mathbf{x}^i, \mathbf{y}^j)$ and $\text{LSE}_{k=1}^N(\mathbf{V}_k) = \log\sum\limits_{k=1}^N\exp(\mathbf{V}_k)$ is a log-sum-exp reduction for a vector $\mathbf{V}$, used to give a smooth approximation to the true dual potentials.
+
+The autocorrelation potential, $s$, is given by:
+\begin{align}
+    s(\mathbf{x}^i) &= -\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_{\boldsymbol\theta}(\mathbf{\mathbf{x}}^k) + \frac{1}{\epsilon}s(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}^i, \mathbf{x}^k)\right)\right) \label{autocorrelationsinkhornterms_supp}
+\end{align}
+$t(\mathbf{y}^i)$ can be derived similarly by replacing $p_{\boldsymbol\theta} \rightarrow \pi$ in \eqref{autocorrelationsinkhornterms_supp} above. However, the autocorrelation dual can be found using a well-conditioned fixed point update \citeS{feydy_interpolating_2018}, and convergence to the optimal potentials can be observed with much fewer Sinkhorn iterations:
+\begin{align}
+    s(\mathbf{x}^i) &\leftarrow \frac{1}{2}\left[s(\mathbf{x}^i)-\epsilon \text{LSE}_{k=1}^N\left(\log\left(p_{\boldsymbol\theta}(\mathbf{x}^k) + \frac{1}{\epsilon}s(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}^i, \mathbf{x}^k)\right)\right)\right] \label{autocorrelationsinkhorntermsupdate_supp}
+\end{align}
+
+Next, we derive the gradient of $\mathcal{L}^\epsilon_{\SH}$, given in \eqref{sinkhorngradient} in the main text. The derivative with respect to a single probability of the \textit{observed} samples, $p_{\boldsymbol\theta}(\mathbf{x}^i)$ is given by \citeS{feydy_interpolating_2018}:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi)}{\partial p_{\boldsymbol\theta}(\mathbf{x}^i)} = f(\mathbf{x}^i) - s(\mathbf{x}^i)
+\end{align}
+However, this only applies to the samples which have been \textit{used} to compute $f, s$ in the first place. If one encounters a sample from $p_{\theta_k^{\pm}}$ (which we shall in the gradient), $\mathbf{x}^s$, which one has not seen in the original samples from $p_{\boldsymbol\theta}$, one has no value for the corresponding vectors at this point: $f(\mathbf{x}^s), s(\mathbf{x}^s)$. Fortunately, as shown in \citeS{feydy_interpolating_2018}, the gradient does extend smoothly to this point (and all points in the sample space) and in general is given by:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi)}{\partial p_{\boldsymbol\theta}(\mathbf{x})} &= \varphi(\mathbf{x}) 
+\end{align}
+\begin{multline}
+    \varphi(\mathbf{x}) = -\epsilon \text{LSE}_{k=1}^M\left(\log\left(\pi(\mathbf{\mathbf{y}}^k) + \frac{1}{\epsilon}g^{0}(\mathbf{y}^k) - \frac{1}{\epsilon} C(\mathbf{x}, \mathbf{y}^k)\right)\right)\\
+    + \epsilon \text{LSE}_{k=1}^N\left(\log\left(p_{\boldsymbol\theta}(\mathbf{\mathbf{y}^k}) + \frac{1}{\epsilon}s^{0}(\mathbf{x}^k) - \frac{1}{\epsilon} C(\mathbf{x}, \mathbf{x}^k)\right)\right)
+\end{multline}
+Where $g^{(0)}, s^{(0)}$, are the optimal vectors which solve the original optimal transport problem, \eqref{sinkhorndualvectors_supp} and \eqref{autocorrelationsinkhornterms_supp} at convergence, given the samples, $\hat{\mathbf{x}}, \hat{\mathbf{y}}$ from $p_{\boldsymbol\theta}, \pi$ respectively.
+Given this, the gradient of the Sinkhorn Divergence with respect to the parameters, $\theta_k$ is given by:
+\begin{align}
+    \frac{\partial \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi)}{\partial \theta_k} &= \sum\limits_{\mathbf{x}}\frac{\partial \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi)}{\partial p_{\boldsymbol\theta}(\mathbf{x})}\frac{\partial p_{\boldsymbol\theta}(\mathbf{x})}{\partial \theta_k} \nonumber\\
+    & = \sum\limits_\mathbf{x}\varphi(\mathbf{x})\left(p_{\theta^-_k}(\mathbf{x}) - p_{\theta^+_k}(\mathbf{x})\right) \nonumber \\
+    & = \underset{\substack{\mathbf{x} \sim p_{\theta_k^-} }}{\mathbb{E}}[\varphi(\mathbf{x})] 
+    -\underset{\substack{\mathbf{x} \sim p_{\theta_k^+}  }}{\mathbb{E}}[\varphi(\mathbf{x})] \label{sinkhorngradient_supp}
+\end{align}
+ Therefore, one can compute the gradient by drawing samples from the distributions, $\hat{\mathbf{x}} \sim p_{\theta_k^\pm}$, and computing the vector $\varphi(\mathbf{x})$ , for each sample, $\mathbf{x} \in \hat{\mathbf{x}}$, using the vectors, $g^{(0)}, s^{(0)}$ already computed during the evaluation of $\SH$ at each epoch.
+
+\subsection{Sample Complexity} \label{supp_matt:sinkhorn_sample_complexity}
+
+As mentioned above, the sample complexity of the $\MMD$ scales as $\mathcal{O}(1/\sqrt{N})$, and it is known that the Wasserstein distance scales as $\mathcal{O}(1/N^n)$ \citeS{weed_sharp_2017} for a distribution supported on a subset of $\mathbb{R}^n$. The former indicates that the $\MMD$ can be computed to an accuracy $\epsilon$ with $\mathcal{O}(\epsilon^{-2})$ samples regardless of the underlying space, and the latter means the Wasserstein requires $\mathcal{O}(\epsilon^{-n})$ which is exponential in the size of the space. Since we are dealing with binary vectors of length $n$, the support of our distributions (the $\IBM$ and the data distribution) will be $\mathcal{X} = \{0, 1\}^n \subseteq \mathbb{R}^n$\footnote{A general quantum distribution can be supported on this entire space.}. These two cases correspond to the extreme regularisation values of $\epsilon \rightarrow \infty$ and $\epsilon \rightarrow 0$ respectively. However, the motivation for using the Sinkhorn Divergence is to leverage the favourable sample complexity of the $\MMD$, with the stronger Wasserstein Distance. This $\epsilon$-regularisation hyperparameter allows us to choose a cost function which optimally suits our needs. By the results of ref.\citeS{feydy_interpolating_2018}, we can be guaranteed that no matter which value is chosen, the $\SH$ will be suitable as a cost function to train the $\IBM$, and in fact any generative model. This is because it is zero for any distributions, say $p$ and $q$, which are identical, and strictly positive otherwise:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(p, q)  = 0 \iff p = q \label{sinkhornzeroiff}\\
+    \mathcal{L}_{\SH}^\epsilon(p, q) \geq \mathcal{L}_{\SH}^\epsilon(p, p) = 0 \label{sinkhorngreaterzero_supp}
+\end{align}
+
+
+It also metrizes convergence in law, effectively meaning it can be estimated using $N$ samples, and will converge to its true value in the limit of large samples:
+\begin{align}
+    \mathcal{L}_{\SH}^\epsilon(\hat{p}_N, p) \rightarrow 0 \iff \hat{p}_N \rightharpoonup p \label{sinkhornconvergenceinlaw_supp}
+ \end{align}
+ 
+ 
+Now, from ref.\citeS{genevay_sample_2018}, we have the following two results\footnote{Note the original theorems technically apply to the regularised $\OT$ cost, rather than $\mathcal{L}_{\SH}$, but the addition of the symmetric terms in \eqref{sinkhorndivergence} will not affect the asymptotic sample complexities since they add only constant overheads.}. The first is the mean difference between the true Sinkhorn divergence, $\mathcal{L}_{\SH}^\epsilon(P, Q)$ and its estimator derived from the empirical distributions, $\mathcal{L}_{\SH}^\epsilon(\hat{P}_N, \hat{Q}_N)$ is given by:
+\begin{theorem}[Theorem 3 from ref.\citeS{genevay_sample_2018}]\label{thm:sinkhornexpectationsamplecomplexity_supp}
+Consider the Sinkhorn divergence between two distributions, $p$, and $q$ on two bounded subsets, $\mathcal{X}, \mathcal{Y}$ of $\mathbb{R}^n$, with a $C^{\infty}$, $L-$Lipshitz cost $c$. One has:
+\begin{align}
+    \mathbb{E}|\mathcal{L}_{\SH}^\epsilon(p,q) - \mathcal{L}_{\SH}^\epsilon(\hat{p}_N, \hat{q}_N)| = \mathcal{O}\left(\frac{e^{\frac{\kappa}{\epsilon}}}{\sqrt{N}}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)\right)
+\end{align}
+
+
+where $\kappa = 2L|\mathcal{X}|+||c||_{\infty}$ and constants only depend on $|\mathcal{X}|, |\mathcal{Y}|, c$ and $||c^{l}||_{\infty}$ for $l = 0, \dots, \lfloor n/2\rfloor$.
+\end{theorem}
+The second is the following concentration result:
+
+\begin{corollary}
+[Corollary 1 from ref.\citeS{genevay_sample_2018}]\label{thm:sinkhornconcentrationsamplecomplexity_supp}
+With probability at least $1-\delta$,
+\begin{align}
+    |\mathcal{L}_{\SH}^\epsilon(p,q) - \mathcal{L}_{\SH}^\epsilon(\hat{p}_N, \hat{q}_N)| \leq 12B\frac{\lambda K}{\sqrt{N}} + 2C\sqrt{\frac{2\log\frac{1}{\delta}}{N}}\label{sinkhornconcentrationsamplecomplexity_supp}
+\end{align}
+where $\kappa  \coloneqq 2L|\mathcal{X}|+||c||_{\infty}$, $C  \coloneqq \kappa + \epsilon e^{\frac{\kappa}{\epsilon}}$, $B\leq 1+e^{\left(2\frac{L|\mathcal{X}|+||c||_{\infty}}{\epsilon}\right)}, \lambda = \mathcal{O}(1+ \frac{1}{\epsilon^{\lfloor n/2\rfloor}})) \text{ and } K  \coloneqq \max_{\mathbf{x} \in \mathcal{X}}\kappa_S(\mathbf{x}, \mathbf{x})$.
+\end{corollary}
+$\kappa_S$ is the Matern or the Sobolev kernel, associated to the Sobolev Space, $\mathbf{H}^s(\mathbb{R}^n)$, which is a RKHS for $s > n/2$, but we will not go into further detail here.
+
+The more exact expression for \eqref{sinkhornconcentrationsamplecomplexity_supp} is given by:
+\begin{align}
+     \mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| &\leq 3\frac{B\lambda\sqrt{K}}{\sqrt{N}}
+     \leq \frac{3K}{\sqrt{N}}\left(1+e^{\left(2\frac{L|\mathcal{X}|+||c||_{\infty}}{\epsilon}\right)}\right)\mathcal{O}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)
+\end{align}
+
+Now, for our particular case, we wish to choose the Hamming distance as a metric on the Hamming hypercube (for a fixed dimension, $n$). However, due to the smoothness requirement of the above theorems, $c \in C^\infty$, this would not hold in the discrete case we are dealing with. However, we can take a broader view to simply use the $\ell_1$ distance, and embed the Hamming hypercube in a larger space. This is possible because the Hamming distance, $d_{H}$ is exactly the $\ell_1$ metric but restricted to binary vectors:
+\begin{align}
+    ||\mathbf{x} - \mathbf{y}||_1  & = \sum\limits_{i=1}^n|x_i-y_i| = d_H(\mathbf{x}, \mathbf{y}) ~ \forall x_i, y_i \in \{0, 1\} \label{samplecomplexityexpanded_supp}
+\end{align}
+
+In this scenario, formally, we are dealing with the general hypercube in $\mathbb{R}^n$, but where the probability masses are strictly concentrated on the vertices of the hypercube. Now, we can compute directly some of the constants in the above, Theorem \ref{thm:sinkhornexpectationsamplecomplexity_supp} and Corollary \ref{thm:sinkhornconcentrationsamplecomplexity_supp}. Taking $\mathcal{X}$ to be the unit hypercube in $\mathbb{R}^n$, and taking the Sinkhorn cost to be the $\ell_1$ cost, which is Lipschitz continuous, we can compute the following:
+\begin{align}
+    |\mathcal{X}| = \sup_{\mathbf{x}, \mathbf{y} \in \mathcal{X}}||\mathbf{x} - \mathbf{y}||_1= n,\qquad
+    ||c(\mathbf{x}, \mathbf{y})||_\infty = \sup\{|c(\mathbf{x}, \mathbf{y})| : (\mathbf{x}, \mathbf{y}) \in \mathcal{X}\times \mathcal{Y}\} = n\label{sinkhorn_sample_complexity_calcs}
+\end{align}
+ 
+A rough upper bound for the Lipschitz constant, $L$, can be obtained as follows. For a function, $f:\mathcal{A}\rightarrow\mathcal{B}$, the Lipschitz constant is the smallest value $L$ such that:
+\begin{align}
+    d_{\mathcal{B}}(f(\mathbf{x}),f(\mathbf{y})) \leq L d_{\mathcal{A}}(\mathbf{x}, \mathbf{y}) \label{lipschitzcontinuous_supp}
+\end{align}
+
+
+If we take $d_{\mathcal{A}}$ to be the sum metric on the product space, $\mathcal{X}\times\mathcal{Y}$, and $f$ to be the $\ell_1$ distance, we get:
+\begin{align}
+    |(c(\mathbf{x}^1, \mathbf{y}^1) - c(\mathbf{x}^2, \mathbf{y}^2))| \leq L \left[d_{\mathcal{X}}(\mathbf{x}^1, \mathbf{x}^2)+ d_{\mathcal{Y}}(\mathbf{y}^1, \mathbf{y}^2)\right] \label{costfunctionlipschitzcont_supp}
+\end{align}
+
+For two points, $(\mathbf{x}^1, \mathbf{y}^1), (\mathbf{x}^2, \mathbf{y}^2) \in \mathcal{X}\times \mathcal{Y}$, and the cost $c:\mathcal{X}\times\mathcal{Y}\rightarrow \mathbb{R}, c = ||\cdot||_1$.
+Now, 
+
+\begin{align}
+    \frac{\left|\sum_i |\mathbf{x}_i^1 - \mathbf{y}_i^1| - \sum_i |\mathbf{x}_i^2 - \mathbf{y}_i^2| \right|}{\left[\sum_i |\mathbf{x}_i^1 - \mathbf{x}_i^2| + \sum_i |\mathbf{y}_i^1 - \mathbf{y}_i^2| \right]} \leq L \label{lipshitzderivation2_supp}
+\end{align}
+
+
+We want to find an upper bound for the left hand side of \eqref{lipshitzderivation2_supp}, assuming that $\mathbf{x}^1 \neq \mathbf{x}^2$ and $\mathbf{y}^1 \neq \mathbf{y}^2$\footnote{In this case, both numerator and denominator are zero, so any non-zero $L$ will satisfy \eqref{costfunctionlipschitzcont_supp}.}. Now, applying the trick that we have embedded the Hamming hypercube in the general hypercube, we can assume $\mathbf{x}^{1,2}_i, \mathbf{y}^{1,2}_i \in \{0, 1\}\forall i$. To derive such a bound, we can bound both the numerator and the denominator of the LHS of \eqref{lipshitzderivation2_supp} independently. We find the denominator is as small as possible, when only one element of $\mathbf{x}^{1,2}$ or $\mathbf{y}^{1,2}$ is equal to one, and all the rest zero.  The numerator is as large as possible when one of $\mathbf{x}^{1,2}$ or $\mathbf{y}^{1,2}$ is the all-one vector. In this case, the LHS is upper bounded by $n$ (for a fixed $n$), so we can choose $L = n$, which is a constant for a fixed $n$.
+
+So, \eqref{samplecomplexityexpanded_supp} becomes:
+\begin{align}
+     &\mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| \leq \frac{3K}{\sqrt{M}}\left(1+e^{\left(2\frac{n^2+n}{\epsilon}\right)}\right)\mathcal{O}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)
+\end{align}
+
+The constants in $O\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)$, depend on $|\mathcal{X}|, |\mathcal{Y}|, n, \text{ and } ||c^{(k)}||_\infty$ which are at most linear in $n$. Ignoring the constant terms, we arrive at the scaling for the average error, \eqref{sinkhorn_expectation_sample_chosen_MAIN}, in the main text. Similarly the concentration bound is: 
+\begin{align}
+    &|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| \leq 6B\frac{\lambda K}{\sqrt{M}} + C\sqrt{\frac{2\log\frac{1}{\delta}}{M}}\\
+    &\leq \frac{12K}{\sqrt{M}}\left(1+e^{\left(2\frac{L|\mathcal{X}|+||c||_{\infty}}{\epsilon}\right)}\right)\mathcal{O}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)+ 2\kappa\sqrt{\frac{2\log\frac{1}{\delta}}{M}} + 2\epsilon e^{\frac{\kappa}{\epsilon}}\sqrt{\frac{2\log\frac{1}{\delta}}{M}}\\
+    &= \frac{1}{\sqrt{M}}\left[12\left(1+e^{\left(\frac{\mathcal{O}(n^{2})}{\epsilon}\right)}\right)\mathcal{O}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)+\mathcal{O}(n^{2})\sqrt{2\log\frac{1}{\delta}} + 2\epsilon e^{\frac{\mathcal{O}(n^{2})}{\epsilon}}\sqrt{2\log\frac{1}{\delta}}\right]\\
+    &= \mathcal{O}\left(\frac{1}{\sqrt{M}}\left[\left(1+e^{\left(\frac{n^{2}}{\epsilon}\right)}\right)\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)\right.+ \left.n^{2}\sqrt{2\log\frac{1}{\delta}}  + \epsilon e^{\frac{n^{2}}{\epsilon}}\sqrt{2\log\frac{1}{\delta}}\right]\right) \label{sinkhornbornsamplecomplexity_supp}
+\end{align}
+
+
+Since, $\kappa = 2n^2+n = \mathcal{O}(n^{2})$. Now, clearly, due to the asymptotic behaviour of the Sinkhorn Divergence, we would like to choose $\epsilon$ sufficiently large in order to remove as much dependence on the dimension, $n$, as possible. This is because, in our case, the dimension of the space is equivalent to the number of qubits, and hence to derive a favourable sample complexity, we would hope for the dependence on $d$ to be polynomial in the number of qubits. By examining, \eqref{sinkhornbornsamplecomplexity_supp}, we could see that a good choice might be $\epsilon = \mathcal{O}(n^{2})$. In this case, we get:
+\begin{align}
+    |\mathcal{L}_{\SH}^{\mathcal{O}(n^{2})} - \hat{\mathcal{L}}_{\SH}^{\mathcal{O}(n^{2})}| 
+    = &\mathcal{O}\left(\frac{1}{\sqrt{M}}\left[\left(1+\frac{1}{n^{\lfloor n/2\rfloor}}\right)\right.\right.+ \left.\left.n\sqrt{2\log\frac{1}{\delta}}\right]\right) \label{sinkhornbornsamplecomplexitychoosed_supp}
+\end{align}
+
+
+with probability $1-\delta$. It is likely in practice however, that a much smaller value of $\epsilon$ could be chosen, without blowing up the sample complexity. This is evidenced by numerical results in \citeS{genevay_learning_2017, feydy_interpolating_2018, genevay_sample_2018}. Again, by ignoring constant terms, we get the scaling observed in \eqref{sinkhornborn_samplecomplexity_choosed_MAIN} in the main text.
+
