@@ -456,7 +456,13 @@ $\theta^{d+1}_k= \theta_k^{d} - \eta\partial_{\theta_k}\mathcal{L}_B$ does not b
 We now provide definitions informally to match the requirements of the second point. We adapt definitions from distribution learning theory\cite{kearns_learnability_1994} for this purpose. Specifically, we say that a generative QML Algorithm, $\mathcal{A}\in \BQP$ (with a small abuse of notation) has %demonstrated 
 \textit{quantum learning supremacy} (QLS) if there exists a class of probability distributions 
 $\mathcal{D}_n$ over $\mathcal X^n$ (bit vectors of length $n$), 
-for which there exists a metric $d$, and a fixed $\epsilon$ such that $\mathcal{D}_n$ is $\left( d ,\epsilon, \BQP \right)$-Learnable, but $\mathcal{D}_n$ is not $\left( d ,\epsilon, \BPP \right)$-Learnable (learnable by a purely classical algorithm). The task of the learning algorithm will be to output, with high probability, a \textit{Generator}, $\GEN_{D'}$, for a distribution $D'$, such that $D'$ is close to $D \in \mathcal{D}_n$, measured with respect to the metric $d$. For the precise definitions of learnability we employ see \appref{supp_mat:superioritydefinitions}.
+for which there exists a metric $d$, and a fixed $\epsilon$ such that 
+$\mathcal{D}_n$ is $(d ,\epsilon, \BQP)$-learnable via $\mathcal{A}$, 
+but not $\left( d ,\epsilon, \BPP \right)$-learnable (i.e.\@ learnable by a purely classical algorithm). The task of the learning algorithm $\mathcal{A}$ is, given a target distribution $D\in \mathcal D_n$,
+to output, with high probability, a \textit{Generator}, 
+$\GEN_{D'}$, for a distribution $D'$, 
+such that $D'$ is close to $D \in \mathcal{D}_n$ with respect to the metric $d$. 
+For the precise definitions of learnability we employ see \appref{supp_mat:superioritydefinitions}.
 This framework is very similar to that of, and inspired by, probably approximately correct (PAC) learning, which has been well studied in the quantum case\cite{arunachalam_survey_2017}, but applies more closely to the task of supervised learning. It is known that in certain cases, the use of quantum computers can be beneficial to PAC learning, but not generically\cite{arunachalam_quantum_2019}. Based on this, it is possible that there exist some classes of distributions which cannot be efficiently learned by classical computers ($\BPP$ algorithms), but which could be learned by quantum devices ($\BQP$ algorithms). The motivation for this is exactly rooted in the question of quantum supremacy, and illustrated crudely in \figref{subfig:qlsillustration}. An initial attempt at QLS could be achieved is as follows. As mentioned above, if random $\IQP$ circuits could be classically simulated to within a $\TV$ error of $\epsilon = 1/384$\cite{bremner_average-case_2016} in the worst case (with high probability over the choice of circuit), this would imply unlikely consequences for complexity theory. Now, if a generative quantum model was able to achieve a closeness in $\TV$ less than this constant value, perhaps by minimising one of the upper bounds in \eqref{tv_wasserstein_sinkhorn_inequality}, then we could claim this model had achieved something classically intractable, and could not be classically simulated either. For example if we make the following assumptions,
 \begin{enumerate}
     \item Assume the $\IBM$ could achieve a $\TV < \delta$ to a target $\IQP$ distribution. 
@@ -477,21 +483,22 @@ Then:
 \centering
 %
 \begin{subfigure}[t]{0.5\textwidth}
-    \centering
+%    \centering
     \includegraphics[width=\textwidth, height = 0.3\textwidth]{images/FIG_5a_generator.pdf}
     \caption{}\label{subfig:generator}
 \end{subfigure}
 %
 \qquad
 \begin{subfigure}[t]{0.4\textwidth}
-\centering
+%\centering
         \includegraphics[width=\textwidth, height = 0.5\textwidth]{images/FIG_5b_tv_hardness_parameter_space.pdf}
     \caption{}
     \label{subfig:qlsillustration}
 \end{subfigure}
-
 \caption{
-(a) Hybrid training procedure of Ising Born Machine. (b) Illustration of a learning procedure using a Generator. The algorithm is given access to $\GEN_D$, which provides samples, $\mathbf{x}\sim D$, and must output a Generator for a distribution which is close to the original. We allow the target generator to be classical, hence it may take as input a string of random bits, of size polynomial in $n$, $r(n)$, if not able to generate its own randomness. (c) Crude illustration of quantum learning supremacy. No classical algorithm, $\mathsf{C}_i$, should be able to achieve the required closeness in total variation to the target distribution, but the $\IBM$ (or similar) should be able to, for \textit{some} class of target distributions. There should be some path in the parameter space of the $\IBM$, $\boldsymbol\theta$, which achieves this.
+%(a) Hybrid training procedure of Ising Born Machine. 
+(a) Illustration of a learning procedure using a Generator. The algorithm 
+$\mathcal A$ is given access to $\GEN_D$, which provides samples, $\mathbf{x}\sim D$, and must output a Generator for a distribution which is close to the original. We allow the target generator to be classical, hence it may take as input a string of random bits, of size polynomial in $n$, $r(n)$, if not able to generate its own randomness. (b) Crude illustration of quantum learning supremacy. No classical algorithm, $\mathcal{C}_i$, should be able to achieve the required closeness in total variation to the target distribution, but the $\IBM$ (or similar) should be able to, for \textit{some} class of target distributions. There should be some path in the parameter space of the $\IBM$, $\boldsymbol\theta$, which achieves this.
 }\label{fig:learning_supremacy}
 \end{figure*}
 
