@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 \section{Integral Probability Metrics as Cost Functions}
 \label{supp_matt:cf_and_ipms}
 
@@ -12,7 +13,7 @@ The gradient of the $\KL$ cost, $\mathcal{L}_{\KL}$, cannot be estimated efficie
 & \sim \sum\limits_{\mathbf{z}}\frac{\pi(\mathbf{z})}{{p_{\boldsymbol\theta}(\mathbf{z})}}\left(p^-_{\boldsymbol\theta}(\mathbf{z})- p^+_{\boldsymbol\theta}(\mathbf{z})\right) \label{klgradient}
 \end{align}
 As noted in refs. \citeS{bremner_classical_2011, liu_differentiable_2018}, computing the required probabilities $p_{\boldsymbol\theta}$ is $\#\Pee$-hard, and so \eqref{klgradient} cannot be computed efficiently.
-Furthermore, the $\KL$ Divergence is an example of a so-called $f$-divergence \citeS{sriperumbudur_integral_2009}, and such measures are notoriously hard to estimate in practice. A potential solution to this is to use an alternative family of discrepancies, called \textit{Integral Probability Metrics} (IPMs) which are defined by the following equation:
+Furthermore, the $\KL$ Divergence is an example of a so-called $f$-divergence \citeS{sriperumbudur_integral_2009}, and such measures are notoriously hard to estimate in practice. A potential solution to this is to use an alternative family of discrepancies, called \textit{Integral Probability Metrics}\citeS{muller1997integral} (IPMs) which are defined by the following equation:
 \begin{align}
     \gamma_{\mathcal{F}}(p_{\boldsymbol\theta}, \pi) &  \coloneqq \sup_{\phi \in \mathcal{F}}\left|\int_{\mathcal{M}}\phi dp_{\boldsymbol\theta}-\int_{\mathcal{M}}\phi d\pi\right| \label{ipmequation}\\
     &= \sup_{\phi \in \mathcal{F}}\left(\mathbb{E}_{p_{\boldsymbol\theta}}[\phi]- \mathbb{E}_{\pi}[\phi]\right) 
