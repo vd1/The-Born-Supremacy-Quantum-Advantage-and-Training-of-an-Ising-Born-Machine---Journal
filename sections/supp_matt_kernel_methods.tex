@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 
 \section{Kernel Methods and the \texorpdfstring{$\MMD$}{MMD}}\label{supp_matt:kernelmethods_mmd}
 In this section, we elaborate on the kernel methods which we use and also provide relevant definitions. Kernel methods are a popular technique, for example in dimensionality reduction, and are beginning to be brought into the quantum realm \citeS{havlicek_supervised_2019, schuld_quantum_2019}. A kernel is a symmetric function, $\kappa:\mathcal{Y}\times\mathcal{Y} \rightarrow \mathbb{R}$, which is positive definite, meaning that the matrix it induces, called a \textit{Gram} matrix, is positive semi-definite.
@@ -15,7 +16,8 @@ Every feature map has a corresponding kernel, given by the inner product on the 
 The full proof that this feature map gives rise to a kernel, a positive semi-definite and symmetric function, can be found in \citeS{schuld_quantum_2019} for quantum feature maps, $\phi :\mathbf{x}\rightarrow \ket{\phi(\mathbf{x})}$.
 
 
-The Hilbert Space is `\emph{reproducing}' because the inner product of the kernel at a point in the sample space, with a function on the Hilbert space, in some sense \emph{evaluates} or reproduces the function at that point:  $\langle f, \kappa(\mathbf{x}, \cdot)\rangle  = f(\mathbf{x}) \forall f \in \mathcal{H}, \mathbf{x} \in \mathcal{X}^n$. 
+The Hilbert Space is `\emph{reproducing}' because the inner product of the kernel at a point in the sample space, with a function on the Hilbert space, in some sense \emph{evaluates} or reproduces the function at that point:  $\langle f, \kappa(\mathbf{x}, \cdot)\rangle  = f(\mathbf{x})$ for $f \in \mathcal{H}$, 
+$\mathbf{x} \in \mathcal{X}^n$. 
 
 We can also define the \emph{mean embedding}, which is a relevant quantity in the definition of the $\MMD$, and which has been defined also quantumly\citeS{kubler_quantum_2019}:
 \begin{align}
@@ -27,7 +29,7 @@ It can be shown that the \textsf{MMD} (\eqref{mmd_metric_supp}) is exactly the d
     \gamma_{\MMD}(p_{\boldsymbol\theta}, \pi) &  \coloneqq ||\mu_{p_{\boldsymbol\theta}} - \mu_{\pi}||_{\mathcal{H}}\label{mmd_mean_embedding}
 \end{align}
 
-As mentioned above, we wish to use \emph{quantum} kernels, i.e.\@ those arising as a result of an state overlap in a Quantum RKHS. This notion was first presented by ref. \citeS{schuld_quantum_2019} in which the form of the kernel assumed by is the one induced by the inner product on a quantum (i.e.\@ complex) Hilbert space:
+As mentioned above, we wish to use \emph{quantum} kernels, i.e.\@ those arising as a result of a state overlap in a Quantum RKHS. This notion was first presented by ref. \citeS{schuld_quantum_2019} in which the form of the kernel assumed is the one induced by the inner product on a quantum (i.e.\@ complex) Hilbert space:
 \begin{align}
 \kappa(\mathbf{x}, \mathbf{y}) & \coloneqq \braket{\phi(\mathbf{x})|\phi(\mathbf{y})} \label{amplitudekernel}
 \end{align}
