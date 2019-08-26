@@ -439,7 +439,7 @@ The \emph{intuition} behind the second point is the following. If our $\IBM$ mod
 learn a target distribution $\pi$ in the sense of providing a quantum circuit $C$
 close to $\pi$ up to a given error in total variation,
 and $C$ had %is believed to itself 
-quantum supremacy, then the model would have demonstrated something which is classically unfeasible. Otherwise, it would mean that there exists a efficient classical algorithm 
+quantum supremacy, then the model would have demonstrated something which is likely classically unfeasible. Otherwise, it would mean that there exists a efficient classical algorithm 
 which can get close to $\pi$ without repeatedly sampling and simulating quantum circuits 
 en route.
 
@@ -468,7 +468,7 @@ This framework is very similar to that of, and inspired by, probably approximate
 An initial attempt at QLS is as follows. As mentioned above, if random $\IQP$ circuits could be classically simulated to within a $\TV$ error of $\epsilon = 1/384$\cite{bremner_average-case_2016} in the worst case (with high probability over the choice of circuit), this would imply unlikely consequences for complexity theory. Now, if a generative quantum model was able to achieve a closeness in $\TV$ less than this constant value, perhaps by minimising one of the upper bounds in \eqref{tv_wasserstein_sinkhorn_inequality}, then we could claim this model had achieved something classically intractable, and could not be classically simulated either. For example if we make the following assumptions,
 \begin{enumerate}
     \item Assume the $\IBM$ could achieve a $\TV < \delta$ to a target $\IQP$ distribution. 
-    \item Assume a classical probabilistic algorithm, $\mathsf{C}$, could output a distribution $q$ in polynomial time which was $\gamma$ close in $\TV$ to the $\IBM$, i.e.\@ it could simulate it efficiently.
+    \item Assume a classical probabilistic algorithm, $\mathcal{C}$, could output a distribution $q$ in polynomial time which was $\gamma$ close in $\TV$ to the $\IBM$, i.e.\@ it could simulate it efficiently.
 \end{enumerate}
 Then:
 \begin{align}
@@ -478,7 +478,7 @@ Then:
 &\leq \delta+\gamma \equiv \epsilon
 \end{align}
 
-\noindent where the third line follows from the triangle inequality. Therefore $\mathsf{C}$ could simulate an $\IQP$ distribution also, and we arrive at a contradiction. The major open question left by this work is whether QLS is possible at all; can a quantum model outperform all classical ones in generative learning?
+\noindent where the third line follows from the triangle inequality. Therefore $\mathcal{C}$ could simulate an $\IQP$ distribution also, and we arrive at a contradiction. The major open question left by this work is whether QLS is possible at all; can a quantum model outperform all classical ones in generative learning?
 
 
 \begin{figure*}[ht]
@@ -506,9 +506,9 @@ $\mathcal A$ is given access to $\GEN_D$, which provides samples, $\mathbf{x}\si
 
 
 \subsection*{Quantum Compiling}
-As a concrete application of such a model outside the scope of generative modelling, we can use the $\IBM$ training to perform a type of `weak' quantum circuit compilation. To the best of our knowledge, this is a novel instance of applying techniques in generative modelling to quantum information processing tasks. There are also potentially other areas which could be studied using these tools, but this is beyond the scope of this work.
+As a concrete application of such a model outside the scope of classical generative modelling, we can use the $\IBM$ training to perform a type of `weak' quantum circuit compilation. To the best of our knowledge, this is a novel instance of applying techniques in generative modelling to quantum information processing tasks. There are also potentially other areas which could be studied using these tools, but this is beyond the scope of this work.
 
-The major objective in this area is to compile a given target unitary, $U$, into one which consists exclusively of operations available to the native hardware of the Quantum Computer in question. For example, in the case of Rigetti's Aspen QPU, the native gates are the following set: $\{R_x(\pm \pi/2), R_z(\theta), CZ\}$ \cite{smith_practical_2016, khatri_quantum-assisted_2018}, and any unitary which a user wishes to implement must be compiled into a unitary $V$ which contains only these ingredients. Potential solutions to this problem\cite{jones_quantum_2018, khatri_quantum-assisted_2018} involve approximating the target unitary, $U$ itself by assuming $V$ is a variational circuit built from the native gates, which have parameters that can be trained by some optimisation strategy. We adopt a similar view here, but we do not require any extra quantum resources to perform the compilation. With this limitation, we make a tradeoff in that we are not guaranteed to apply \textit{the same} target unitary, only that the output distribution will be somewhat close to that produced by the target. Clearly this is a much weaker constraint than the task of compiling directly one unitary into another, since many unitaries may give rise to the same distribution but it is much closer to the capabilities of near term devices. To illustrate this application, we train an $\IBM$ to learn the output distribution of a random $\IQP$ circuit when restricted to a $\QAOA$ architecture itself using $\mathcal{L}_{\SH}$ as a cost function.
+The major objective in this area is to compile a given target unitary, $U$, into one which consists exclusively of operations available to the native hardware of the Quantum Computer in question. For example, in the case of Rigetti's Aspen QPU, the native gates are the following set: $\{R_x(\pm \pi/2), R_z(\theta), CZ\}$ \cite{smith_practical_2016, khatri_quantum-assisted_2018}, and any unitary which a user wishes to implement must be compiled into a unitary $V$ which contains only these ingredients. Potential solutions to this problem\cite{jones_quantum_2018, khatri_quantum-assisted_2018} involve approximating the target unitary, $U$ itself by assuming $V$ is a parametric circuit built from the native gates which can be trained by some optimisation strategy. We adopt a similar view here, but we do not require any extra quantum resources to perform the compilation. With this limitation, we make a tradeoff in that we are not guaranteed to apply \textit{the same} target unitary, only that the output distribution will be somewhat close to that produced by the target. Clearly this is a much weaker constraint than the task of compiling directly one unitary into another, since many unitaries may give rise to the same distribution but it is much closer to the capabilities of near term devices. To illustrate this application, we train an $\IBM$ to learn the output distribution of a random $\IQP$ circuit when restricted to a $\QAOA$ architecture itself using $\mathcal{L}_{\SH}$ as a cost function.
 \begin{multline}
     \IBM\left(\left\{J^{\QAOA}_{ij}, b^{\QAOA}_k\right\}, \left\{\Gamma_k = \frac{\pi}{4}\right\}, 0,  0\right) \\
     \overset{Compile}{\rightarrow}   \IBM\left(\left\{J^{\IQP}_{ij}, b^{\IQP}_k\right\}, \left\{\Gamma_k = \frac{\pi}{2\sqrt{2}}\right\}, \right.\\0, \left.\left\{\Sigma_k = \frac{\pi}{2\sqrt{2}}\right\}\right)
