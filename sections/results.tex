@@ -128,10 +128,11 @@ where $\theta_k^{\pm}:=\theta_k \pm\pi/2$.
 The gradients of the cost functions which we introduce next 
 will also include the parameter-shifted circuits in \eqref{circuit:gradientplusminuscircuit}. For more details on kernel methods and the $\MMD$, see \appref{supp_matt:kernelmethods_mmd}.
 
-\begin{figure*}[ht]
-    \centering
+
+\begin{figure*}[t!]
+ %   \centering
      \begin{subfigure}[t]{0.31\textwidth}
-     \centering
+  %   \centering
     %     \includegraphics[width=\textwidth, height = 0.9\textwidth]{images/TV_4_qubits_mmd_kernel_comp_lr_Average_samples_500_batch_250.pdf}
          \begin{tikzpicture}
   \node (img)  {\includegraphics[width=0.95\textwidth, height = 0.8\textwidth]{images/FIG_2a_TV_4_qubits_mmd_kernel_comp_lr_Average_samples_500_batch_250_TAKE_two.pdf}};
@@ -142,7 +143,7 @@ will also include the parameter-shifted circuits in \eqref{circuit:gradientplusm
         \label{subfig:tv_4_qubits_mmd_gaussian_v_quantum}
     \end{subfigure}
     \begin{subfigure}[t]{0.31\textwidth}
-     \centering
+   %  \centering
         % \includegraphics[width=\textwidth, height = 0.8\textwidth]{images/probs_4_qubits_mmd_kernel_comp_lr_0_1_AVG_samples_500_batch_250.pdf}
          \begin{tikzpicture}
   \node (img)  {\includegraphics[width=\textwidth, height = 0.8\textwidth]{images/FIG_2b_probs_4_qubits_mmd_kernel_comp_lr_0_1_AVG_samples_500_batch_250.pdf}};
@@ -154,7 +155,7 @@ will also include the parameter-shifted circuits in \eqref{circuit:gradientplusm
     \end{subfigure}
     ~ 
     \begin{subfigure}[t]{0.31\textwidth}
-     \centering
+    % \centering
         % \includegraphics[width=\textwidth, height = 0.8\textwidth]{images/MMD_4_qubits_mmd_kernel_comp_Average_samples_500_batch_250.pdf}
          \begin{tikzpicture}
   \node (img)  {\includegraphics[width=\textwidth, height = 0.8\textwidth]{images/FIG_2c_MMD_4_qubits_mmd_kernel_comp_Average_samples_500_batch_250.pdf}};
@@ -164,7 +165,13 @@ will also include the parameter-shifted circuits in \eqref{circuit:gradientplusm
         \caption{}
         \label{subfig:mmd_kernel_comp_4_qubits}
     \end{subfigure}
-      \caption{Performance of quantum $\kappa_Q$ [\crule[red]{0.2cm}{0.2cm}] vs. Gaussian kernel,  $\kappa_G$ [\crule[blue]{0.2cm}{0.2cm}] (with $\eta_{\mathsf{init}} = 0.1$) for 4 qubits. To train, we sample from the $\IBM$ and the data $500$ times and use a minibatch size of $250$. One epoch is one complete update of all parameters according to gradient descent. Error bars represent maximum, minimum and mean values achieved over 5 independent training runs, with the same initial conditions on the same data samples. (a) $\TV$ Difference achieved with both kernel methods during training. With the quantum kernel, a lower value of $\TV$ can be achieved than with a Gaussian kernel. Increasing the learning rate speeds up convergence, but still cannot achieved the same minimum $\TV$ (b) Final learned probabilities with $\eta_{\mathsf{init}} = 0.1$ using the Adam optimiser. (c) $\MMD$ computed using $400$ samples as training points, $100$ as test points, independent of the training data. $\MMD$ is seen to converge faster with the quantum kernel, although it appears to have a higher generalisation error.}\label{fig:QvGkernel4}. 
+\caption{
+Performance of quantum $\kappa_Q$ [\crule[red]{0.2cm}{0.2cm}] vs.\@ Gaussian kernel,  
+$\kappa_G$ [\crule[blue]{0.2cm}{0.2cm}] (with $\eta_{\mathsf{init}} = 0.1$) for 4 qubits. 
+To train, we sample from the $\IBM$ and the data $500$ times and use a minibatch size of $250$. 
+One epoch is one complete update of all parameters according to gradient descent. Error bars represent maximum, minimum and mean values achieved over 5 independent training runs, with the same initial conditions on the same data samples. (a) $\TV$ Difference achieved with both kernel methods during training. With the quantum kernel, a lower value of $\TV$ can be achieved than with a Gaussian kernel. Increasing the learning rate speeds up convergence, but still cannot achieved the same minimum $\TV$ (b) Final learned probabilities with $\eta_{\mathsf{init}} = 0.1$ using the Adam optimiser. (c) $\MMD$ computed using $400$ samples as training points, $100$ as test points, independent of the training data. $\MMD$ is seen to converge faster with the quantum kernel, although it appears to have a higher generalisation error.
+\label{fig:QvGkernel4}
+} 
 \end{figure*}
 
 % \begin{figure*}
@@ -420,21 +427,30 @@ $\MMD$ [\crule[cyan]{0.2cm}{0.2cm}, \crule[yellow]{0.2cm}{0.2cm}, \crule[ForestG
 
 
 \subsection*{Hardness and Quantum Advantage}
-It is crucially important, not just for our purposes, but for the design of quantum machine learning algorithms in general, that the algorithm itself is providing some advantage over \textit{any} classical one, for the same task. This is the case for so-called \textit{coherent} algorithms, like the HHL linear equation solver\cite{harrow_quantum_2009}, which is known to be $\BQP$ - complete, and is unlikely to be fully dequantised by a classical algorithm achieving a similar runtime. However, such a proven advantage for \textit{near term} QML algorithms is yet out of reach. We attempt to address such a question in two steps. 
+It is crucially important, not just for our purposes, but for the design of quantum machine learning algorithms in general, that the algorithm itself is providing some advantage over \textit{any} classical one, for the same task. This is the case for so-called \textit{coherent} algorithms, like the HHL linear equation solver\cite{harrow_quantum_2009}, which is $\BQP$-complete, and therefore unlikely to be fully dequantised, 
+%by a classical algorithm achieving a similar runtime. 
+However, such a proven advantage for \textit{near term} QML algorithms is yet out of reach. We attempt to address such a question in two steps. 
 \begin{enumerate}
-    \item We show that our $\IBM$ model cannot be simulated efficiently classically for a large number of parameter values, $\boldsymbol\theta$, up to a multiplicative error, in the worst case. We also show that this holds for the quantum circuits generated via the gradient computation, and hence we can claim that the model can \textit{remain} hard during training.
-    \item We will provide the first formal definitions for quantum learning supremacy, the ability of a quantum model to provably outperform all classical models in a certain task, and a potential pathway to prove such a thing.
+    \item We show that for a large number of parameter values, $\boldsymbol\theta$, our $\IBM$ circuits are `hard', that is to say cannot be efficiently simulated classically up to a multiplicative error, in the worst case. We also show that this holds for the quantum circuits generated via the gradient computation, and hence the model may \textit{remain} hard during training (although we do not know for sure).
+    \item We provide the first formal definitions for quantum learning supremacy, the ability of a quantum model to provably outperform all classical models in a certain task, and a potential pathway to prove such a thing.
 \end{enumerate}
 
-The intuition behind the second point is the following. If a QML model (i.e.\@ the $\IBM$) could for instance, learn a target distribution outputted by a quantum circuit which is believed to itself demonstrate quantum computational supremacy, up to a constant total variation error, then we could claim that the model has demonstrated something which is classically unfeasible; otherwise it would violate our belief that the target distribution did indeed demonstrate quantum supremacy.
+The \emph{intuition} behind the second point is the following. If our $\IBM$ model could %for instance, 
+learn a target distribution $\pi$ in the sense of providing a quantum circuit $C$
+close to $\pi$ up to a given error in total variation,
+and $C$ had %is believed to itself 
+quantum supremacy, then the model would have demonstrated something which is classically unfeasible. Otherwise, it would mean that there exists a efficient classical algorithm 
+which can get close to $\pi$ without repeatedly sampling and simulating quantum circuits 
+en route.
 
-The first point does not in fact achieve this; firstly it is not known to hold itself to within the required notion of error (i.e.\@ total variation distance) but even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a model which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
+The first point does not completely fit that intuition. For one thing, it is not known to hold itself to within the required notion of error (i.e.\@ total variation distance). Also, even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a model which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
 
 We can address point 1. informally (see \appref{supp_matt:hardness} for the formal statements and proof) in three steps:
 \begin{itemize}
     \item If the initial parameters of the model $\{\boldsymbol \alpha\} = \{J_{ij}, b_k\}\in\{0,\frac{\pi}{8}, \dots, \frac{7\pi}{8}\}$ and final measurement angles are chosen such that $U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) = H^{\otimes n}$, then the resulting $\IBM$ circuit class will be hard to simulate up to an additive error of $1/384$ in total variation distance, subject to a conjecture relating to the hardness of computing the Ising partition function \cite{bremner_average-case_2016}.
     \item If certain configurations of the parameters are chosen to be either of the form, $(2l+1)\pi/kd$, where $l, d$ are integers, and $k$ is a number which depends on the circuit family, or in the form $2\pi\nu$, where $\nu$ is irrational, then the resulting class of circuits will be hard to sample from classically, up to a multiplicative error, in the worst case.
-    \item The circuits produced at epoch as a result of the gradient updates will each result in a hard circuit class as long as the gradient updates are not chosen carelessly. In each epoch, if the updated parameters $\theta^{d+1}_k \leftarrow \theta_k^{d} - \partial_{\theta^{d}_k}\mathcal{L}_B$ are constrained such that $\theta^{d+1}_k$ is not allowed to become rational (or zero), then the updated circuits will also belong to a class which is hard to simulate. This is because the updates can simply be absorbed into the original gates, to give a circuit which has the same form. This holds also for the gradient shifted circuits in\eqref{circuit:gradientplusminuscircuit} since these correspond to circuits whose parameters are updated as follows: $\theta^{d, \pm}_k \leftarrow \theta_k^{d} \pm \pi/2$.
+    \item The circuits produced at each epoch as a result of the gradient updates will each result in a hard circuit class as long as the gradient updates are not chosen carelessly. In each epoch, if the update step is constrained in a way that the new value of the parameter 
+$\theta^{d+1}_k= \theta_k^{d} - \eta\partial_{\theta_k}\mathcal{L}_B$ does not become rational, then the updated circuits will also belong to a class which is hard to simulate. This is because the updates can simply be absorbed into the original gates, to give a circuit which has the same form. This holds also for the gradient shifted circuits in\eqref{circuit:gradientplusminuscircuit} since these correspond to circuits whose parameters are updated as follows: $\theta^{d, \pm}_k \leftarrow \theta_k^{d} \pm \pi/2$.
 \end{itemize}
 
 We now provide definitions informally to match the requirements of the second point. We adapt definitions from distribution learning theory\cite{kearns_learnability_1994} for this purpose. Specifically, we say that generative QML Algorithm, $\mathcal{A}\in \BQP$ (with a small abuse of notation) has demonstrated \textit{quantum learning supremacy} (QLS) if there exists a class of probability distributions over binary strings of length $n$, $\mathcal{D}_n$, for which there exists a metric $d$, and a fixed $\epsilon$ such that $\mathcal{D}_n$ is $\left( d ,\epsilon, \BQP \right)$-Learnable, but $\mathcal{D}_n$ is not $\left( d ,\epsilon, \BPP \right)$-Learnable (learnable by a purely classical algorithm). The task of the learning algorithm will be to output, with high probability, a \textit{Generator}, $\GEN_{D'}$, for a distribution $D'$, such that $D'$ is close to $D \in \mathcal{D}_n$, measured with respect to the metric $d$. For the precise definitions of learnability we employ see \appref{supp_mat:superioritydefinitions}.
