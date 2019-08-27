@@ -431,7 +431,7 @@ It is crucially important, not just for our purposes, but for the design of quan
 %by a classical algorithm achieving a similar runtime. 
 However, such a proven advantage for \textit{near term} QML algorithms is yet out of reach. We attempt to address such a question in two steps. 
 \begin{enumerate}
-    \item We show that for a large number of parameter values, $\boldsymbol\theta$, our $\IBM$ circuits are `hard', that is to say cannot be efficiently simulated classically up to a multiplicative error, in the worst case. We also show that this holds for the quantum circuits generated via the gradient computation, and hence the model may \textit{remain} hard during training (although we do not know for sure).
+    \item We show that for a large number of parameter values, $\boldsymbol\theta$, our $\IBM$ circuits are `hard', that is to say cannot be efficiently simulated classically up to a multiplicative error, in the worst case. We also show that this holds for the auxiliary quantum circuits used for the gradient estimation, and hence the model may \textit{remain} hard during training (although we do not know for sure).
     \item We provide the first formal definitions for quantum learning supremacy, the ability of a quantum model to provably outperform all classical models in a certain task, and a potential pathway to prove such a thing.
 \end{enumerate}
 
