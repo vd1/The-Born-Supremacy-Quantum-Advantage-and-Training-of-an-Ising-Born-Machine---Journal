@@ -443,7 +443,9 @@ by providing a quantum circuit $C$ close enough to $\pi$
 then the model would have demonstrated something which is classically unfeasible. Else there would exist a efficient classical algorithm 
 which can get close to $\pi$ which contradicts hardness.
 
-The first point does not completely fit that intuition. For one thing, it is not known to hold itself to within the required notion of error (i.e.\@ total variation distance). Also, even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a model which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
+The first point does not completely fit that intuition. 
+For one thing, hardness is not known to hold for the required notion of additive error 
+(i.e.\@ total variation distance) but only for multiplicative error. Also, even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a model which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
 
 We can address point 1. informally (see \appref{supp_matt:hardness} for the formal statements and proof) in three steps:
 \begin{itemize}
