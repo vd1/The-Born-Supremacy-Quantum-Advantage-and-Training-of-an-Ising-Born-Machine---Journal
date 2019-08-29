@@ -1,9 +1,9 @@
 
 
 \section{Stein Discrepancy \& Score Approximations \label{supp_matt:stein_discrepenancy}}
-In this section we elaborate on the Stein Discrepancy ($\SD$) and the methods to approximate the score function mentioned in the main text. The $\SD$ was originally proposed in ref.\citeS{gorham_measuring_2015}, which also provided as a method to compute it using linear programs, since in general the computation involves high dimensional integrals, similarly to the $\MMD$. A simpler form was derived by ref.\citeS{liu_kernelized_2016}, which introduced a kernelised version, allowing it to be computed in closed form. 
+In this section we elaborate on the Stein discrepancy ($\SD$) and the methods to approximate the score function mentioned in the main text. The $\SD$ was originally proposed in ref.\citeS{gorham_measuring_2015}, which also provided as a method to compute it using linear programs, since in general the computation involves high dimensional integrals, similarly to the $\MMD$. A simpler form was derived by ref.\citeS{liu_kernelized_2016}, which introduced a kernelised version, allowing it to be computed in closed form. 
 
-We begin by discussing the original formulation of the Discrepancy in the continuous case, before dealing with its discretisation. Firstly, we have Stein's Identity given by (in the case where the sample space is one-dimensional, $x\in \mathcal{X} \subseteq \mathbb{R}$):
+We begin by discussing the original formulation of the discrepancy in the continuous case, before dealing with its discretisation. Firstly, we have Stein's identity given by (in the case where the sample space is one-dimensional, $x\in \mathcal{X} \subseteq \mathbb{R}$):
 \begin{align}
     \mathbb{E}_\pi\left[\mathcal{A}_\pi\phi(x)\right] = \mathbb{E}_\pi \left[s_\pi(x)\phi(x)+ \nabla_x\phi(x)\right]  = 0 \label{steinidentity}
 \end{align}
@@ -13,9 +13,9 @@ where $s_\pi(x) = \nabla_x\log(\pi(x))$ is the \textit{Stein Score} function of 
     D_S(p_{\boldsymbol\theta}|| \pi)  \coloneqq \sup_{\phi \in \mathcal{F}}\left(\mathbb{E}_{p_{\boldsymbol\theta}}[\mathcal{A}_\pi\phi] - \mathbb{E}_{p_{\boldsymbol\theta}}[\mathcal{A}_{p_{\boldsymbol\theta}}\phi]\right)^2 \label{steindiscrepancy_supp}
 \end{align}
 
-Note the second term in \eqref{steindiscrepancy_supp} is zero by \eqref{steinidentity} if and only if $p\equiv q$, in which case $D_s(p||q) = 0$ by \eqref{steinidentity}. Exactly as with the $\MMD$, the power of the above discrepancy, \eqref{steindiscrepancy_supp}, will depend on the choice of the function space, $\mathcal{F}$. By choosing it to be a RKHS, a kernelised form which is computable in closed form can be obtained. Also, this form of \eqref{steindiscrepancy_supp} is very reminiscent of that of the integral probability metrics, \eqref{ipmequation}.
+If $p\equiv q$, then $D_S(p_{\boldsymbol\theta}|| \pi) = 0$ by \eqref{steinidentity}. Exactly as with the $\MMD$, the power of the above discrepancy, \eqref{steindiscrepancy_supp}, will depend on the choice of the function space, $\mathcal{F}$. By choosing it to be a RKHS, a kernelised form which is computable in closed form can be obtained. Also, this form of \eqref{steindiscrepancy_supp} is very reminiscent of that of the integral probability metrics, \eqref{ipmequation}.
 
-However, to make the $\SD$ applicable to this case, we must make a key alteration. The above, \eqref{steindiscrepancy_supp} is only defined for smooth probability densities, $p_{\boldsymbol\theta}, \pi$, which are supported on \textit{continuous} domains, e.g.\@ $\mathbb{R}$, due to the gradient term, $\nabla_x$, in \eqref{steinidentity}. We must perform a discretisation procedure to deal with this. Fortunately, this has been addressed by ref.\citeS{yang_goodness--fit_2018}, which adapted the kernelised $\SD$ to the discrete domain, by introducing a discrete gradient `shift' operator. Just as above, we assume we are dealing with $n$-dimensional sample vectors, $\mathbf{x}\in \mathcal{X}^n \subseteq \mathbb{R}^n$. First of all, we shall need some definitions\citeS{yang_goodness--fit_2018}:
+However, to make the $\SD$ applicable to this case, we must make a key alteration. The above, \eqref{steindiscrepancy_supp} is only defined for smooth probability densities, $p_{\boldsymbol\theta}, \pi$, which are supported on \textit{continuous} domains (e.g.\@ $\mathbb{R}$) due to the gradient term, $\nabla_x$, in \eqref{steinidentity}. We must perform a discretisation procedure to deal with this. Fortunately, this has been addressed by ref.\citeS{yang_goodness--fit_2018}, which adapted the kernelised $\SD$ to the discrete domain, by introducing a discrete gradient `shift' operator. Just as above, we assume we are dealing with $n$-dimensional sample vectors, $\mathbf{x}\in \mathcal{X}^n \subseteq \mathbb{R}^n$. First of all, we shall need some definitions\citeS{yang_goodness--fit_2018}:
 
 \begin{definition}[Cyclic Permutation]
 For a set $\mathcal{X}$ of finite cardinality, a cyclic permutation $\neg:\mathcal{X} \rightarrow \mathcal{X}$ is a bijective function such that for some ordering $x^{[1]},x^{[2]}, \dots, x^{[|\mathcal{X}|]}$ of the elements in $\mathcal{X}$, $\neg x^{[i]} \mapsto x^{[(i+1)\mod|\mathcal{X}|]}, \forall i = 1,2,\dots, |\mathcal{X}|$
@@ -25,7 +25,7 @@ Given a cyclic permutation  $\neg$ on $\mathcal{X}$, for any vector, $\mathbf{x}
 \begin{align}
     \Delta_{x_i}f(\mathbf{x}) := f(\mathbf{x}) - f(\neg_i\mathbf{x}) \forall i=1, \dots, d \label{discreteshiftoperator}
 \end{align}
-with $\Delta f(\mathbf{x}) = (\Delta_{x_1}f(\mathbf{x}), \dots \Delta_{x_n}f(\mathbf{x}))^T$. Define the (difference) score function for a positive probability mass function, $p(\mathbf{x}) > 0 \forall \mathbf{x}$ as:
+with $\Delta f(\mathbf{x}) = (\Delta_{x_1}f(\mathbf{x}), \dots \Delta_{x_n}f(\mathbf{x}))^T$. Define the (difference) score function for a positive probability mass function, $p(\mathbf{x}) > 0 ~\forall \mathbf{x}$ as:
 \begin{align}
     \mathbf{s}_p(\mathbf{x}) &  \coloneqq \frac{\Delta p(\mathbf{x})}{p(\mathbf{x})} \label{discretescorefunction}\\
     (\mathbf{s}_p(\mathbf{x}))_i &= \frac{\Delta_{x_i} p(\mathbf{x})}{p(\mathbf{x})} = 1 -  \frac{p(\neg_i\mathbf{x})}{p(\mathbf{x})}
@@ -35,9 +35,9 @@ Furthermore, ref.\citeS{yang_goodness--fit_2018} also defines the inverse permut
 \begin{align}
     \Delta^*_{x_i}f(\mathbf{x})  \coloneqq f(\mathbf{x}) - f(\revneg_i\mathbf{x}) \forall i=1, \dots, n \label{inversediscreteshiftoperator}
 \end{align}
-However, this is slightly too general for our purposes, as the sample space for a single qubit is binary; $\mathcal{X} = \{0, 1\}$. In this case, the forward and reverse permutations are identical, so $\Delta \equiv \Delta^*$.
+However, this is slightly too general for our purposes, as the sample space for a single qubit is binary; $\mathcal{X} = \{0, 1\}$. In this case, the forward and reverse permutations are identical, so $\Delta = \Delta^*$.
 
-The discrete versions of the Stein identity, and the kernelised Stein discrepancy are also derived in ref.\citeS{yang_goodness--fit_2018}, and are in an identical form to the continuous case. There is however, one interesting difference. In the continuous case, the class of functions, $\phi \in \mathcal{F}$, which obey Stein's Identity (i.e.\@ those which are in the Stein class of the operator $\mathcal{A}_p$) are only those for which $\phi(\mathbf{x})p(\mathbf{x})$ vanishes at the boundary of the set, $\partial \mathcal{Y}$\citeS{liu_kernelized_2016}. Interestingly, this restriction is not necessary in the discrete case. Due to the definition of the discrete shift operator, it turns out that \textit{all} functions $\phi: \mathcal{X}^n \rightarrow \mathbb{R}$ are in the Stein class of the discrete Stein operator. This gives us the freedom to use the quantum kernel, $\kappa_Q$, \eqref{quantumkernel}, in the $\SD$ by making a small adaption to the proof of Theorem 2 in \citeS{yang_goodness--fit_2018} so that the discrete Stein Identity also holds for all \textit{complex} valued functions also, necessary due to the complex nature of the feature map in \eqref{quantumfeaturemap}.
+The discrete versions of the Stein identity, and the kernelised Stein discrepancy are also derived in ref.\citeS{yang_goodness--fit_2018}, and are in an identical form to the continuous case. There is however, one interesting difference. In the continuous case, the class of functions, $\phi \in \mathcal{F}$, which obey Stein's identity (i.e.\@ those which are in the Stein class of the operator $\mathcal{A}_p$) are only those for which $\phi(\mathbf{x})p(\mathbf{x})$ vanishes at the boundary of the set, $\partial \mathcal{Y}$\citeS{liu_kernelized_2016}. Interestingly, this restriction is not necessary in the discrete case. Due to the definition of the discrete shift operator, it turns out that \textit{all} functions $\phi: \mathcal{X}^n \rightarrow \mathbb{R}$ are in the Stein class of the discrete Stein operator. This gives us the freedom to use the quantum kernel, $\kappa_Q$, \eqref{quantumkernel}, in the $\SD$ by making a small adaption to the proof of Theorem 2 in \citeS{yang_goodness--fit_2018} so that the discrete Stein identity also holds for all \textit{complex} valued functions also, necessary due to the complex nature of the feature map in \eqref{quantumfeaturemap}.
 \begin{theorem}[Difference Stein's Identity for complex valued functions, adapted from Theorem 2 in ref.\citeS{yang_goodness--fit_2018}]\label{thm:complexdiscretesteinidentity}:
 
 For any function $\phi: \mathcal{X}^n\rightarrow \mathbb{C}$, and a probability mass function $p$ on $\mathcal{X}^n$:
@@ -91,7 +91,7 @@ While the $\SD$ is in a similar form to the $\MMD$ (written in terms of expectat
     \kappa_\pi(\mathbf{x}, \mathbf{y}) &= s_\pi(\mathbf{x})^T\kappa(\mathbf{x}, \mathbf{y})s_\pi(\mathbf{y}) -s_\pi(\mathbf{x})^T\Delta_{\mathbf{y}}^*\kappa(\mathbf{x}, \mathbf{y})  - \Delta_{\mathbf{x}}^*\kappa(\mathbf{x}, \mathbf{y})^Ts_\pi(\mathbf{y}) + \tr(\Delta_{\mathbf{x}, \mathbf{y}}^*\kappa(\mathbf{x}, \mathbf{y})) \label{weightedkernelbornmachine_supp}
 \end{align}
 
-Now, we need its gradient (to perform gradient descent) with respect to a given parameter, $\theta_k$, is given by:
+\noindent Now, we need its gradient (to perform gradient descent) with respect to a given parameter, $\theta_k$, is given by:
 \begin{align}
     \frac{\partial \mathcal{L}_{\SD}}{\partial \theta_k} &= \underset{\substack{\mathbf{x} \sim p^-_{\boldsymbol\theta} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p^+_{\boldsymbol\theta} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] +\underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta}\\ \mathbf{y}\sim p^-_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta} \\ \mathbf{y}\sim p^+_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] \label{steingradient_supp}
 \end{align}
@@ -103,7 +103,7 @@ The derivation is very similar to the derivation of the $\MMD$ cost function gra
     &=  \sum\limits_{\mathbf{x}, \mathbf{y}}p^-_{\theta_k}(\mathbf{x})  \kappa_\pi(\mathbf{x}, \mathbf{y}) p_{\boldsymbol\theta}(\mathbf{y}) -  \sum\limits_{\mathbf{x}, \mathbf{y}}p^+_{\theta_k}(\mathbf{x})  \kappa_\pi(\mathbf{x}, \mathbf{y}) p_{\boldsymbol\theta}(\mathbf{y}) +\sum\limits_{\mathbf{x}, \mathbf{y}} p_{\boldsymbol\theta}(\mathbf{x})\kappa_\pi(\mathbf{x}, \mathbf{y})   p^-_{\theta_k}(\mathbf{y}) -  \sum\limits_{\mathbf{x}, \mathbf{y}} p_{\boldsymbol\theta}(\mathbf{x})\kappa_\pi(\mathbf{x}, \mathbf{y})p^+_{\theta_k}(\mathbf{y})\\
     & = \underset{\substack{\mathbf{x} \sim p^-_{\theta_k} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p^+_{\theta_k} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] +\underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta}\\ \mathbf{y}\sim p^-_{\theta_k}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta} \\ \mathbf{y}\sim p^+_{\theta_k}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})]
 \end{align*}
-We have used \eqref{mmdprobabilitygradient} for the Ising Born Machine Gradient, \citeS{mitarai_quantum_2018, liu_differentiable_2018, schuld_evaluating_2018} and that the Stein kernel, $\kappa_{\pi}$, of \eqref{weightedkernelbornmachine} does not depend on the parameter, ${\theta_k}$.
+We have used \eqref{mmdprobabilitygradient} for the Ising Born machine gradient, \citeS{mitarai_quantum_2018, liu_differentiable_2018, schuld_evaluating_2018} and that the Stein kernel, $\kappa_{\pi}$, of \eqref{weightedkernelbornmachine} does not depend on the parameter, ${\theta_k}$.
 
 \end{proof}
 
@@ -117,9 +117,9 @@ However, adding to the computational burden, we also must compute the following 
 \begin{align}
     \Delta_\mathbf{x}\kappa(\mathbf{x}, \mathbf{y}) \qquad \Delta_\mathbf{y}\kappa(\mathbf{x}, \mathbf{y}) \qquad  \tr\Delta_{\mathbf{x}\mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})
 \end{align}
-which are required in \eqref{weightedkernelbornmachine_supp}. Let $K$ be a polynomial, where it takes $O(K)$ time to compute the entire original kernel matrix:
+which are required in \eqref{weightedkernelbornmachine_supp}. Let $K$ be a polynomial, where it takes $\mathcal{O}(K)$ time to compute the entire original kernel matrix:
 \begin{align}
-    K = O(\epsilon^{-2}N^4) \times T(n)
+    K = \mathcal{O}(\epsilon^{-2}N^4) \times T(n)
 \end{align}
 where $T(n)$ is a polynomial in the size of the input $n$ (the number of qubits) describing the running time of the quantum circuit required to compute the kernel for \textit{one} pair of samples, $(\mathbf{x}, \mathbf{y})$. We now examine the efficiency of computing the shifted terms in \eqref{steindiscrepancybornmachine_supp} using the quantum kernel of \eqref{quantumkernel_app}.
 
@@ -127,7 +127,7 @@ For example:
 \begin{align}
     \Delta_{\mathbf{x}}\kappa(\mathbf{x}, \mathbf{y}) &= (\kappa(\mathbf{x}, \mathbf{y}), \dots, \kappa(\mathbf{x}, \mathbf{y}))^T- (\kappa(\neg_1\mathbf{x}, \mathbf{y}), \dots, \kappa(\neg_n\mathbf{x}, \mathbf{y}))^T \label{xshiftedterm}
 \end{align}
-We assume $\kappa(\mathbf{x}, \mathbf{y})$ has been computed for a single pair of samples in time $O(\epsilon^{-2}N^2 \times T(n))$, and we need to compute $\kappa(\neg_i\mathbf{x}, \mathbf{y})$ for $i = \{1,\dots, n\}$. Therefore, computing the shifted kernel operator in a single parameter takes $O(\epsilon^{-2}N^2 \times T(n)\times (n+1))$. The same holds for the kernel gradient with respect to the second argument, $\Delta_\mathbf{y}\kappa(\mathbf{x}, \mathbf{y})$.
+We assume $\kappa(\mathbf{x}, \mathbf{y})$ has been computed for a single pair of samples in time $\mathcal{O}(\epsilon^{-2}N^2 \times T(n))$, and we need to compute $\kappa(\neg_i\mathbf{x}, \mathbf{y})$ for $i = \{1,\dots, n\}$. Therefore, computing the shifted kernel operator in a single parameter takes $\mathcal{O}(\epsilon^{-2}N^2 \times T(n)\times (n+1))$. The same holds for the kernel gradient with respect to the second argument, $\Delta_\mathbf{y}\kappa(\mathbf{x}, \mathbf{y})$.
 For $\Delta_{\mathbf{x}, \mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})$, the process is slightly more involved because:
 
 
@@ -135,24 +135,24 @@ For $\Delta_{\mathbf{x}, \mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})$, the process
     \tr\Delta_{\mathbf{x}, \mathbf{y}}\kappa(\mathbf{x}, \mathbf{y}) &= \tr\Delta_{\mathbf{x}}[ \Delta_{\mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})] \nonumber = \tr\Delta_{\mathbf{x}}[\kappa(\mathbf{x}, \mathbf{y}) - \kappa(\mathbf{x}, \neg\mathbf{y})] \nonumber \\
     &= n\kappa(\mathbf{x}, \mathbf{y}) - \sum\limits_{i=1}^n\kappa(\mathbf{x}, \neg_i\mathbf{y}) - \sum\limits_{i=1}^n\kappa(\neg_i\mathbf{x}, \mathbf{y})\nonumber + \sum\limits_{i=1}^n\kappa(\neg_i\mathbf{x}, \neg_i\mathbf{y})
 \end{align}
-Each individual term in the respective sums requires the same complexity, i.e.\@ $O(\epsilon^{-2}N^2 \times T(n))$ so the term $\tr\Delta_{\mathbf{x}, \mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})$ overall requires $O(\epsilon^{-2}N^2 \times T(n)\times (3n+1))$. 
+Each individual term in the respective sums requires the same complexity, i.e.\@ $\mathcal{O}(\epsilon^{-2}N^2 \times T(n))$ so the term $\tr\Delta_{\mathbf{x}, \mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})$ overall requires $\mathcal{O}(\epsilon^{-2}N^2 \times T(n)\times (3n+1))$. 
 
-Therefore, each term in $\kappa_\pi$ can be computed efficiently using the quantum kernel, \eqref{quantumkernel_app}. That is, with the exception of the score function $s_\pi$ for the Data distribution. If we are given oracle access to the probabilities, $\pi(\mathbf{y})$, then there is no issue and $\SD$ will be computable. Unfortunately, in any practical application this will not be the case. To deal with such a case, in \appref{supp_matt:steinscoremethod}, we give two approaches to approximate the Score function via samples from $\pi$. We call these methods the `Identity', and `Spectral' methods for convenience. We only use the Spectral method in training the $\IBM$ in this work, since the former method does not give an immediate out-of-sample method to compute the score, as discussed further in \appref{supp_matt:spectralsteinscore}. Notice that even with the hurdle (difficulty in compute the score), the $\SD$ is still more suitable than the $\KL$ divergence to train these models, since the latter requires computing the \textit{circuit} probabilities, $p_{\boldsymbol\theta}(\mathbf{x})$, which is in general intractable, and so could not be done for \textit{any} dataset. In contrast, the Stein Discrepancy does not require the circuit probabilities, only the data probabilities, which may make it ameanable for QCL using some datasets.
+Therefore, each term in $\kappa_\pi$ can be computed efficiently using the quantum kernel, \eqref{quantumkernel_app}. That is, with the exception of the score function $s_\pi$ for the data distribution. If we are given oracle access to the probabilities, $\pi(\mathbf{y})$, then there is no issue and $\SD$ will be computable. Unfortunately, in any practical application this will not be the case. To deal with such a case, in \appref{supp_matt:steinscoremethod}, we give two approaches to approximate the Score function via samples from $\pi$. We call these methods the `Identity', and `Spectral' methods for convenience. We only use the Spectral method in training the $\IBM$ in this work, since the former method does not give an immediate out-of-sample method to compute the score, as discussed further in \appref{supp_matt:spectralsteinscore}. Notice that even with the hurdle (difficulty in compute the score), the $\SD$ is still more suitable than the $\KL$ divergence to train these models, since the latter requires computing the \textit{circuit} probabilities, $p_{\boldsymbol\theta}(\mathbf{x})$, which is in general intractable, and so could not be done for \textit{any} dataset. In contrast, the Stein Discrepancy does not require the circuit probabilities, only the data probabilities, which may make it ameanable for generative modelling using some datasets.
 
 
 \subsection{Computing the Stein Score Function} 
 \label{supp_matt:steinscoremethod}
 
-Above, it was shown that most parts of the Stein Discrepancy can be computed efficiently, even when using the quantum kernel of \eqref{quantumkernel_app}. However, we have not addressed the computability of the score function (\eqref{discretescorefunction} \textit{itself}. For every sample, $\mathbf{x}\sim p_{\boldsymbol\theta}$, that we receive from the Born machine we require the score function of that outcome being outputted from the data distribution, $\mathbf{x} \sim \pi$. This involves computing $\pi(\mathbf{x})$, and also $\Delta_{\mathbf{x}}\pi(\mathbf{x})$, i.e.\@ $\pi(\neg_i\mathbf{x}), \forall i \in\{1, \dots, n\}$. In fact, since the score function involves the ratio of these two quantities, it is actually not necessary to compute the probabilities \textit{themselves}. This makes the Stein Discrepancy useful for distributions which are normalised by some intractable normalisation factor, for example in a Boltzmann Machine. 
+Here we address the computability of the score function (\eqref{discretescorefunction} \textit{itself}. For every sample, $\mathbf{x}\sim p_{\boldsymbol\theta}$, that we receive from the Born machine we require the score function of that outcome being outputted from the data distribution, $\mathbf{x} \sim \pi$. This involves computing $\pi(\mathbf{x})$, and also $\Delta_{\mathbf{x}}\pi(\mathbf{x})$, i.e.\@ $\pi(\neg_i\mathbf{x}), \forall i \in\{1, \dots, n\}$.
 
-Of course, the Stein Discrepancy can be immediately used for any classical problem (classical datasets) for which the probability density is already known, or can be computed efficiently. However, if one is interested in \textit{implicit} models\footnote{Implicit models are also present in the classical domain, for example in Generative Adversarial Networks, \citeS{mohamed_learning_2016, diggle_monte_1984}, and it is of great interest to find methods of dealing with them.}; models which admit a means of sample generation, but not explicit access to the probability density, then this not immediate. In particular, for those distributions which admit some complexity theory result indicating that they cannot be simulated on a classical device efficiently, it will not be possible to efficiently compute the probabilities required in order to compute the score.
+Of course, the Stein discrepancy can be immediately used for any classical problem (classical datasets) for which the probability density is already known, or can be computed efficiently. However, if one is interested in \textit{implicit} models\footnote{Implicit models are also present in the classical domain, for example in generative adversarial networks, \citeS{mohamed_learning_2016, diggle_monte_1984}, and it is of great interest to find methods of dealing with them efficiently.}: models which admit a means of sample generation, but not explicit access to the probability density, then this not immediate. In particular, for those distributions which admit some complexity theory result indicating that they cannot be simulated on a classical device efficiently, it will not be possible to efficiently compute the probabilities required in order to compute the score.
 
-Here we present two approaches\citeS{li_gradient_2018, shi_spectral_2018}, to compute approximations to the score function, and their application in this specific circumstance. In all the following, we assume it is the score of the \text{data}, $\pi$, which we want to compute. Of course, the most obvious approach to computing the score, using ($M$) samples alone, would be to simply accumulate the empirical distribution which is observed by the samples, $\hat{\pi}(\mathbf{x}^m) = \frac{1}{M}\sum_{m = 1}^M\mathbb{I}(\mathbf{x} = \mathbf{x}^m)$ and compute the score from this distribution. However, this immediately has a severe drawback. Since the score for a given outcome, $s_{\pi}(\mathbf{x}^m)$, requires \textit{also} computing the probabilities of all shifted samples, $\pi(\neg_i\mathbf{x}^m) \forall i$, if we have not seen any of the outcomes $\neg_i\mathbf{x}^m$ in the observed data, we will not have values for these outcomes in the empirical distribution, and hence we cannot compute the score. This would be a major issue as the number of qubits in our system grows, since we will have exponentially many outcomes, many of which we will not see with $poly(n)$ samples.
+Here we present two approaches\citeS{li_gradient_2018, shi_spectral_2018}, to compute approximations to the score function, and their application in this specific circumstance. In all the following, we assume it is the score of the \text{data}, $\pi$, which we want to compute. Of course, the most obvious approach to computing the score, using ($M$) samples alone, would be to simply accumulate the empirical distribution which is observed by the samples, $\hat{\pi}(\mathbf{x}^m) = \frac{1}{M}\sum_{m = 1}^M\mathbb{I}(\mathbf{x} = \mathbf{x}^m)$ and compute the score from this distribution. However, this immediately has a severe drawback. Since the score for a given outcome, $s_{\pi}(\mathbf{x}^m)$, requires \textit{also} computing the probabilities of all shifted samples, $\pi(\neg_i\mathbf{x}^m) ~ \forall i$, if we have not seen any of the outcomes $\neg_i\mathbf{x}^m$ in the observed data, we will not have values for these outcomes in the empirical distribution, and hence we cannot compute the score. This would be a major issue as the number of qubits in our system grows, since we will have exponentially many outcomes, many of which we will not see with $poly(n)$ samples.
 
 \subsubsection{Identity Approximation of Stein Score} \label{app:identitysteinscore}
-As a first attempt, we shall try the method of ref.\citeS{li_gradient_2018}. This  involves noticing that the score function appears in Stein Identity, and inverting Stein's Identity gives a procedure to approximate the score.
+As a first attempt, we shall try the method of ref.\citeS{li_gradient_2018}. This  involves noticing that the score function appears in Stein identity, and inverting Stein's identity gives a procedure to approximate the score.
 
-Of course, we shall need to use the discrete version of Stein's identity in our case, and rederive the result of ref.\citeS{li_gradient_2018} but there are no major differences. Hence, we refer to this method as the `Identity' Method.
+Of course, we shall need to use the discrete version of Stein's identity in our case, and rederive the result of ref.\citeS{li_gradient_2018} but there are no major differences. Hence, we refer to this method as the `Identity' method.
 If we have generated $M$ samples from the data distribution, we denote the score matrix, $G$, at each of those sample points as follows: 
 \begin{align}
 &G^{\pi}  \coloneqq \left(\begin{array}{cccc}
@@ -164,54 +164,61 @@ If we have generated $M$ samples from the data distribution, we denote the score
 \qquad G^{\pi}_{i,j} = \mathbf{s}^i_\pi(\mathbf{x}^j) = \frac{\Delta_{x_i^j}\pi(\mathbf{x}^j)}{\pi(\mathbf{x}^j)}
 \end{align}
 
-Each column is the term which corresponds to the score function for the distribution, $\pi$, and that given sample.
+\noindent Each column is the term which corresponds to the score function for the distribution, $\pi$, and that given sample.
 
 Now, to compute, $\hat{G}^{\pi} \approx G^{\pi}$ we can invert the discrete version of Stein's Identity, \eqref{vectordiscretesteinidentityforscoreinAPP}, similar to ref.\citeS{li_gradient_2018} which does this in the continuous case:
 \begin{align}
     \underset{\mathbf{x}\sim \pi}{\mathbb{E}}[\mathbf{s}_{\pi}(\mathbf{x})\Phi(\mathbf{x})^T - \Delta \mathbf{f}(\mathbf{x})] = \mathbf{0} \label{vectordiscretesteinidentityforscoreinAPP}
 \end{align}
-where $\mathbf{f}$ is a complex vector valued function.
+
+
+\noindent where $\mathbf{f}$ is a complex vector valued function (for now, we will specify it later).
 
 Rearranging (\ref{vectordiscretesteinidentityforscoreinAPP}) in terms of the score function, and following \citeS{li_gradient_2018}:
 \begin{align}
     \underset{\mathbf{x}\sim \pi}{\mathbb{E}}[\mathbf{s}_\pi\phi(\mathbf{x})^T] &= \underset{\mathbf{x}\sim \pi}{\mathbb{E}} [\Delta \mathbf{f}(\mathbf{x})] \\
     \implies \sum\limits_{\mathbf{x}}\pi(\mathbf{x})\mathbf{s}_\pi(\mathbf{x})\mathbf{f}(\mathbf{x})^T &= \sum\limits_{\mathbf{x}}\pi(\mathbf{x})\Delta \mathbf{f}(\mathbf{x})
 \end{align}
-Approximating with $M$ samples, from the data distribution, $\pi(\mathbf{x})$:
+
+
+\noindent Approximating with $M$ samples, from the data distribution, $\pi(\mathbf{x})$:
 \begin{align}
  \implies \sum\limits_{i=1}^{M}\mathbf{s}_\pi(\mathbf{x}^i)\mathbf{f}(\mathbf{x}^i)^T \approx \frac{1}{M}\sum\limits_{i=1}^{M}\Delta_{\mathbf{x}^i} \mathbf{f}(\mathbf{x}^i)
 \end{align}
 
-Defining:
+\noindent Defining:
 \begin{align}
    F &= [\mathbf{f}(\mathbf{x}^1), \mathbf{f}(\mathbf{x}^2), \dots, \mathbf{f}(\mathbf{x}^M)]^T,\qquad
    \hat{G}^\pi = [\mathbf{s}^\pi(\mathbf{x}^1), \mathbf{s}^\pi(\mathbf{x}^2), \dots, \mathbf{s}^\pi(\mathbf{x}^M))]^T,\\
 \overline{\Delta_{\mathbf{x}}\mathbf{f}} &= \frac{1}{M}\sum_{i=1}^M \Delta_{\mathbf{x}^i}\mathbf{f}(\mathbf{x}^i), \qquad \Delta_{\mathbf{x}^i}\mathbf{f}(\mathbf{x}^i) =  [\Delta_{\mathbf{x}^i}f_1(\mathbf{x}^i),\Delta_{\mathbf{x}^i}f_l(\mathbf{x}^i)]^T
 \end{align}
 
-Now the optimal value for the approximate Stein Matrix, $\hat{G}^\pi$ will be the solution to the following ridge regression problem, and adding a regularisation term, with parameter, $\eta$, to avoid the matrix being non-singular:
+\noindent Now the optimal value for the approximate Stein Matrix, $\hat{G}^\pi$ will be the solution to the following ridge regression problem, and adding a regularisation term, with parameter, $\eta$, to avoid the matrix being non-singular:
 \begin{align}
-    \hat{G}^{\pi} = \argmin_{\hat{G}^{\pi} \in \mathbb{R}^{D\times n}}||\overline{\Delta_{\mathbf{x}}\mathbf{f}} - \frac{1}{M}F\hat{G}^{\pi}||_F^2 + \frac{\eta}{M^2}||\hat{G}^{\pi}||_F^2 \label{redregprob_supp}
+    \hat{G}^{\pi} = \argmin_{\hat{G}^{\pi} \in \mathbb{R}^{M\times n}}||\overline{\Delta_{\mathbf{x}}\mathbf{f}} - \frac{1}{M}F\hat{G}^{\pi}||_F^2 + \frac{\eta}{M^2}||\hat{G}^{\pi}||_F^2 \label{redregprob_supp}
 \end{align}
-Where $||\cdot||_F$ is the Frobenius norm: $||A||_F = \sqrt{\tr\left(A^TA\right)}$.
+
+
+\noindent Where $||\cdot||_F$ is the Frobenius norm: $||A||_F = \sqrt{\tr\left(A^TA\right)}$.
 The analytic solution of this ridge regression problem is well known and can be found by differentiating the above \eqref{redregprob_supp} with respect to $\hat{G}^{\pi}$ and setting to zero:
 \begin{align}
     \hat{G}^{\pi} =  M(K+\eta\mathbf{1})^{-1}F^T\overline{\Delta_{\mathbf{x}}\mathbf{f}}\\
     \hat{G}^{\pi} =  M(K+\eta\mathbf{1})^{-1}\langle\Delta, K\rangle \label{approxscore_liderivation}
 \end{align}
 
-Now the method of ref.\citeS{li_gradient_2018} involves implicitly setting the test function to be a feature map in a RKHS, $\mathbf{f} = \Phi$. If this is the case we get $K = F^TF$, and also $\langle \Delta, K\rangle_{ab} = \frac{1}{M}\sum_{i=1}^M \Delta_{x^i_b}\kappa(\mathbf{x}^a, \mathbf{x}^i)$. Unfortunately, there is no motivation given in ref.\citeS{li_gradient_2018} for which choice of feature map should be used to compute \eqref{approxscore_liderivation}. For example, we could use the quantum feature map  of \eqref{quantumkernel_app}, the mixture of Gaussians kernel, \eqref{gaussiankernel}, or the exponentiated Hamming Kernel, which is suggested as a sensible kernel to use in (binary) discrete spaces by ref. \citeS{yang_goodness--fit_2018}:
+\noindent Now the method of ref.\citeS{li_gradient_2018} involves implicitly setting the test function to be a feature map in a RKHS, $\mathbf{f} = \Phi$. If this is the case we get $K = F^TF$, and also $\langle \Delta, K\rangle_{ab} = \frac{1}{M}\sum_{i=1}^M \Delta_{x^i_b}\kappa(\mathbf{x}^a, \mathbf{x}^i)$. Unfortunately, there is no motivation given in ref.\citeS{li_gradient_2018} for which choice of feature map should be used to compute \eqref{approxscore_liderivation}. For example, we could use the quantum feature map  of \eqref{quantumkernel_app}, the mixture of Gaussians kernel, \eqref{gaussiankernel}, or the exponentiated Hamming kernel, which is suggested as a sensible kernel to use in (binary) discrete spaces by ref. \citeS{yang_goodness--fit_2018}:
 \begin{align}
     \kappa_H(\mathbf{x}, \mathbf{y}) & \coloneqq \exp\left(-H(\mathbf{x}, \mathbf{y})\right)\\
     H(\mathbf{x}, \mathbf{y}) & \coloneqq \frac{1}{n} \sum\limits_{i=1}^n|x_i - y_i| \label{hammingkernel}
 \end{align}
-Any of these kernels could be used, since the only requirement on the above method is that the feature map obeys the discrete Stein Identity, which we have seen is \textit{any} complex vector valued function.
+Any of these kernels could be used, since the only requirement on the above method is that the feature map obeys the discrete Stein identity, which we have seen is \textit{any} complex vector valued function.
 
 
 
-\subsubsection{Spectral Approximation of Stein Score\label{supp_matt:spectralsteinscore}
-}
-While the method used to approximate the score function method which was shown in \appref{app:identitysteinscore} is straightforward, it does not give a method of computing the score accurately at sample points which have \textit{not} been seen in the data distribution, $\pi$. This is a problem if, for instance, we come across a sample from the Born Machine, which has not been seen in the data set. Again, this becomes exponentially more likely as the number of qubits grows. If this were to occur during training, a possible solution\citeS{li_gradient_2018} is simply to add that sample to the sample set, and recompute the score function by the method of \secref{app:identitysteinscore}. However, this is expensive, so more streamlined approaches would be desirable. Worse still, this tactic would potentially introduce bias to the data, since there is no guarantee that the given sample from the Born machine, does not have zero probability in the true data, and hence would \textit{never} occur. 
+\subsubsection{Spectral Approximation of Stein Score\label{supp_matt:spectralsteinscore}}
+
+
+While the method used to approximate the score function method which was shown in \appref{app:identitysteinscore} is straightforward, it does not give a method of computing the score accurately at sample points which have \textit{not} been seen in the data distribution, $\pi$. This is a problem if, for instance, we come across a sample from the Born machine, which has not been seen in the data set. Again, this becomes exponentially more likely as the number of qubits grows. If this were to occur during training, a possible solution\citeS{li_gradient_2018} is simply to add that sample to the sample set, and recompute the score function by the method of \appref{app:identitysteinscore}. However, this is expensive, so more streamlined approaches would be desirable. Worse still, this tactic would potentially introduce bias to the data, since there is no guarantee that the given sample from the Born machine, does not have zero probability in the true data, and hence would \textit{never} occur. 
 
 The approach we take is that of ref.\citeS{shi_spectral_2018}, which uses the Nystr{\"o}m method as a subroutine to approximate the score, which is a technique to approximately solve integral equations \citeS{nystrom_uber_1930}. It works by finding eigenfunctions of a given kernel with respect to the target probability mass function, $\pi$. As in the case of ref.\citeS{li_gradient_2018}, the method was defined when $\pi$ is a continuous probability measure, and as such we must make suitable alterations to adapt it to the discrete setting. We refer to this method as the `Spectral' method to compute the score. 
 
@@ -220,41 +227,41 @@ We summarise the parts of ref.\citeS{shi_spectral_2018} which are necessary in t
     \sum_{\mathbf{y}}\kappa(\mathbf{x}, \mathbf{y})\psi_j(\mathbf{y})\pi(\mathbf{y}) = \mu \psi_j(\mathbf{x}) \label{nystromsummationequation}
 \end{align}
 
-where $\{\psi_j\}_{j= 1}^N \in \ell^2(\mathcal{X}, \pi)$, and $\ell^2(\mathcal{X}, \pi)$ is the space of all square-summable sequences with respect to $\pi$, over the discrete sample space, $\mathcal{X}$. If the kernel is a quantum one, as in ref \eqref{quantumkernel_app}, the feature space has a basis, $\{\psi_j = \braket{s_j|\psi}\}_{j= 1}^N \in \ell^2(\mathcal{X}, \pi)$, where $\ket{s_j}$ are for example computational basis states. We also have the constraint that these functions are orthonormal under the discrete $\pi$:
+where $\{\psi_j\}_{j= 1}^N \in \ell^2(\mathcal{X}, \pi)$, and $\ell^2(\mathcal{X}, \pi)$ is the space of all square-summable sequences with respect to $\pi$, over the discrete sample space, $\mathcal{X}$. If the kernel is a quantum one, as in \eqref{quantumkernel_app}, the feature space has a basis, $\{\psi_j = \braket{s_j|\psi}\}_{j= 1}^N \in \ell^2(\mathcal{X}, \pi)$, where $\ket{s_j}$ are for example computational basis states. We also have the constraint that these functions are orthonormal under the discrete $\pi$:
 \begin{align}
     \sum_{\mathbf{x}}\psi_i(\mathbf{x})\psi_j(\mathbf{x}) \pi(\mathbf{x}) = \delta_{ij} \label{nystromorthomal}
 \end{align}
 
 
-Approximating \eqref{nystromsummationequation} by a Monte-Carlo estimate drawn with $M$ samples, and finding the eigenvalues and eigenvectors of the covariance kernel matrix, $K_{ij} = \kappa(\mathbf{x}^i, \mathbf{y}^j)$, in terms of the approximate ones given by the Monte-Carlo estimate exactly, as in \citeS{shi_spectral_2018}, we get:
+Approximating \eqref{nystromsummationequation} by a Monte-Carlo estimate drawn with $M$ samples, and finding the eigenvalues and eigenvectors of the covariance kernel matrix, $K_{ij} = \kappa(\mathbf{x}^i, \mathbf{y}^j)$, in terms of the approximate ones given by the Monte-Carlo estimate, exactly as in ref.\citeS{shi_spectral_2018}, we get:
 \begin{align}
     \psi_j(\mathbf{x}) \approx \hat{\psi}_j(\mathbf{x}) = \frac{\sqrt{M}}{\lambda_i}\sum\limits_{m = 1}^M u_j(\mathbf{x}^m)\kappa(\mathbf{x}, \mathbf{x}^m) \label{nystromeigenfunctions}
 \end{align}
 
 
-$\{u_j\}_{j = 1, \dots J}$ are the $J^{th}$ largest eigenvalues of the kernel matrix, $K$, with eigenvalues, $\lambda_j$. The true eigenfunctions are related to these `sampled' versions by: $\psi_j(\mathbf{x}^m) \approx \sqrt{M} u_{jm} \forall m \in\{1, \dots, M\}, \mu_j \approx \lambda_j/M$.
+\noindent $\{u_j\}_{j = 1, \dots J}$ are the $J^{th}$ largest eigenvalues of the kernel matrix, $K$, with eigenvalues, $\lambda_j$. The true eigenfunctions are related to these `sampled' versions by: $\psi_j(\mathbf{x}^m) \approx \sqrt{M} u_{jm} \forall m \in\{1, \dots, M\}, \mu_j \approx \lambda_j/M$.
 
-Assuming that the discrete score functions are square summable with respect to $\pi$, i.e.\@ $s^i(\mathbf{x}) \in \ell^2(\mathcal{X}, \pi)$, we can be expand the score in terms of the eigenfunctions of the $\ell^2(\mathcal{X}, \pi)$:
+Assuming that the discrete score functions are square summable with respect to $\pi$, i.e.\@ $s^i(\mathbf{x}) \in \ell^2(\mathcal{X}, \pi)$, we can expand the score in terms of the eigenfunctions of the $\ell^2(\mathcal{X}, \pi)$:
 \begin{align}
     s^i(\mathbf{x}) = \sum\limits^{N}_{j=1}\beta_{ij}\psi_j(\mathbf{x}) \label{scoreexpansionineigenbasis}
 \end{align}
 
-Because the eigenfunctions, $\psi_j$ are complex valued, they automatically obey the Discrete Stein's identity \eqref{complexdiscretesteinidentity_supp} and we get the same result as ref.\citeS{shi_spectral_2018}:
+\noindent Since the eigenfunctions, $\psi_j$ are complex valued, they automatically obey the discrete Stein's identity \eqref{complexdiscretesteinidentity_supp} and we get the same result as ref.\citeS{shi_spectral_2018}:
 \begin{align}
     \beta_{ij} = -\mathbb{E}_{\pi}\Delta_{x_i}\psi_j(\mathbf{x})
 \end{align}
 
 
-Proceeding\citeS{shi_spectral_2018}, we apply the discrete shift operator, $\Delta_{x_i}$, to both sides of \eqref{nystromsummationequation} to give an approximation for the term, $\hat{\Delta}_{x_i}\psi(\mathbf{x})  \approx \Delta_{x_i}\psi(\mathbf{x})$:
+\noindent Proceeding\citeS{shi_spectral_2018}, we apply the discrete shift operator, $\Delta_{x_i}$, to both sides of \eqref{nystromsummationequation} to give an approximation for the term, $\hat{\Delta}_{x_i}\psi(\mathbf{x})  \approx \Delta_{x_i}\psi(\mathbf{x})$:
 \begin{align}
-    \hat{\Delta}_{x_i}\psi(\mathbf{x}) = \frac{1}{\mu_j M}\sum\limits_{m=1}^D\Delta_{x_i}\kappa(\mathbf{x}, \mathbf{x}^m) \label{approxeigenfunctionshifts}
+    \hat{\Delta}_{x_i}\psi(\mathbf{x}) = \frac{1}{\mu_j M}\sum\limits_{m=1}^M\Delta_{x_i}\kappa(\mathbf{x}, \mathbf{x}^m) \label{approxeigenfunctionshifts}
 \end{align}
 
 
-It can also be shown in this case that $\hat{\Delta}_{x_i}\psi(\mathbf{x}) \approx \Delta_{x_i}\hat{\psi}(\mathbf{x})$, by comparing \eqref{approxeigenfunctionshifts} with \eqref{nystromeigenfunctions}, and hence we arrive at the estimator for the score function:
+\noindent It can also be shown in this case that $\hat{\Delta}_{x_i}\psi(\mathbf{x}) \approx \Delta_{x_i}\hat{\psi}(\mathbf{x})$, by comparing \eqref{approxeigenfunctionshifts} with \eqref{nystromeigenfunctions}, and hence we arrive at the estimator for the score function:
 \begin{align}
     \hat{s}^i(\mathbf{x}) = \sum\limits_{j=1}^J \hat{\beta}_{ij}\hat{\psi}_j(\mathbf{x}) \hat{\beta}_{ij} = -\frac{1}{M}\Delta_{x_i}\hat{\Psi}_j(\mathbf{x}^m) \label{spectralestimationfunctions}
 \end{align}
 
 
-If the sample space is the space of binary strings of length $n$, the number of eigenfunctions, $N$ will be exponentially large, $N = 2^n$, and so the sum in \eqref{scoreexpansionineigenbasis} is truncated to only include the $J^{th}$ largest eigenvalues and corresponding eigenvectors.
+\noindent If the sample space is the space of binary strings of length $n$, the number of eigenfunctions, $N$ will be exponentially large, $N = 2^n$, and so the sum in \eqref{scoreexpansionineigenbasis} is truncated to only include the $J^{th}$ largest eigenvalues and corresponding eigenvectors.

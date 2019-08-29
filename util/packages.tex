@@ -8,7 +8,7 @@
 % autocite = superscript
 % % sorting=ynt
 % ]{biblatex}
-\usepackage[a4paper, total={7in, 9in}]{geometry}
+\usepackage[a4paper, total={6.5in, 9in}]{geometry}
 \usepackage[justification=justified]{caption}
 \usepackage{amsmath}
 \usepackage{amsthm, mathtools}
@@ -30,7 +30,8 @@
 \apptocmd{\sloppy}{\hbadness 10000\relax}{}{}
 \usepackage[labeled]{multibib}
 \newcites{S}{Supplementary Material References}%  \citelatex, \nocitelatex, ...
-
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
 \usepackage{tikz}
 \usepackage{graphicx}
 \usetikzlibrary{positioning}

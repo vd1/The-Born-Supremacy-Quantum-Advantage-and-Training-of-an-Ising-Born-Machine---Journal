@@ -7,12 +7,14 @@ As mentioned above, the first distribution measure which could be used as a trai
 \begin{align}
     &\mathcal{L}_{\KL}(p_{\boldsymbol\theta}, \pi) \coloneqq -\sum\limits_{\mathbf{z}} \pi(\mathbf{z})\log\left(p_{\boldsymbol\theta}(\mathbf{z})\right)  = -\mathbb{E}_{\mathbf{z}\sim\pi}(\log(p_{\boldsymbol\theta}(\mathbf{z}))\label{klcostfunction}
 \end{align}
-The gradient of the $\KL$ cost, $\mathcal{L}_{\KL}$, cannot be estimated efficiently for these types of QCL models\citeS{liu_differentiable_2018} since it has the following form:
+The gradient of the $\KL$ cost, $\mathcal{L}_{\KL}$, cannot be estimated efficiently for these types of parameterized quantum circuit (PQC) models\citeS{liu_differentiable_2018} since it has the following form:
 \begin{align}
-\frac{\partial\mathcal{L}_{\KL}}{\partial \theta} 
+\frac{\partial\mathcal{L}_{\KL}}{\partial {\boldsymbol\theta}} 
 & \sim \sum\limits_{\mathbf{z}}\frac{\pi(\mathbf{z})}{{p_{\boldsymbol\theta}(\mathbf{z})}}\left(p^-_{\boldsymbol\theta}(\mathbf{z})- p^+_{\boldsymbol\theta}(\mathbf{z})\right) \label{klgradient}
 \end{align}
-As noted in refs. \citeS{bremner_classical_2011, liu_differentiable_2018}, computing the required probabilities $p_{\boldsymbol\theta}$ is $\#\Pee$-hard, and so \eqref{klgradient} cannot be computed efficiently.
+
+
+\noindent As noted in refs. \citeS{bremner_classical_2011, liu_differentiable_2018}, computing the required probabilities $p_{\boldsymbol\theta}$ is $\#\Pee$-hard, and so \eqref{klgradient} cannot be computed efficiently.
 Furthermore, the $\KL$ Divergence is an example of a so-called $f$-divergence \citeS{sriperumbudur_integral_2009}, and such measures are notoriously hard to estimate in practice. A potential solution to this is to use an alternative family of discrepancies, called \textit{Integral Probability Metrics}\citeS{muller1997integral} (IPMs) which are defined by the following equation:
 \begin{align}
     \gamma_{\mathcal{F}}(p_{\boldsymbol\theta}, \pi) &  \coloneqq \sup_{\phi \in \mathcal{F}}\left|\int_{\mathcal{M}}\phi dp_{\boldsymbol\theta}-\int_{\mathcal{M}}\phi d\pi\right| \label{ipmequation}\\

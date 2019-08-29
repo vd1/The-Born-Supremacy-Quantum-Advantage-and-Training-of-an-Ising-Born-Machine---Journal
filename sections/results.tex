@@ -1,7 +1,7 @@
 % !TEX root = ../main.tex
 \section*{Results}\label{sec:results}
 
-Here we present the main results of the work. These are the new efficient gradient-based training methods, and the hardness of classical simulation of the model. Firstly we define the model we use, and its connection to previously known quantum circuit families. In the next section, we discuss the efficient training of the model, firstly recalling a previously known gradient-based training method, using the $\MMD$ cost function, and then moving onto our new training methods using the Stein discrepancy and the Sinkhorn divergence in the following sections. We then discuss the Sinkhorn divergence complexity in detail, and further argue why it should be used, based on its connection to Total Variation distance. In the next section, we then prove the hardness results mentioned above; that many circuits encountered during gradient based training are hard to classically simulate. In the next section, we discuss the potential ability of quantum generative models to learn distributions which are intractable to classical models, and provide a framework to study these advantages.
+Here we present the main results of the work. These are the new efficient gradient-based training methods, and the hardness of classical simulation of the model. Firstly we define the model we use, and its connection to previously known quantum circuit families. In the next section, we discuss the efficient training of the model, firstly recalling a previously known gradient-based training method, using the $\MMD$ cost function, and then moving onto our new training methods using the Stein discrepancy and the Sinkhorn divergence in the following sections. We then discuss the Sinkhorn divergence complexity in detail, and further argue why it should be used, based on its connection to Total Variation distance. In the next section, we then prove the hardness results mentioned above; that many circuits encountered during gradient based training are hard to classically simulate. Finally, we discuss the potential ability of quantum generative models to learn distributions which are intractable to classical models, and provide a framework to study these advantages.
 
 
 \subsection*{Ising Born Machine}
@@ -36,7 +36,7 @@ A measurement on all qubits in the computational basis results in sample vectors
 \begin{align}
     p_{\boldsymbol\theta}(\mathbf{x}) \coloneqq \left|\bra{\mathbf{x}}U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) U_z(\boldsymbol\alpha)\ket{+}^{\otimes n}\right|^2
 \end{align}
-We denote the above model and parameters by $\IBM(\boldsymbol\alpha, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma})$. We choose this structure in order to easily recover two more well known circuit classes, namely Instantaneous Quantum Polynomial Time\cite{shepherd_temporally_2009} ($\IQP$) circuits, and the shallowest depth ($p=1$) version of the Quantum Approximate Optimisation Algorithm\cite{farhi_quantum_2014}, ($\QAOA$). $\IQP$ circuits are named due to the commuting structure of the unitary $U_z$,  and $\QAOA$\cite{farhi_quantum_2014} was originally developed as an approximate version of the Quantum Adiabatic Algorithm\cite{farhi_quantum_2000}. Both of these classes of circuits, are known to demonstrate quantum supremacy to varying degrees\cite{bremner_classical_2011, bremner_average-case_2016, farhi_quantum_2016, bremner_achieving_2017}, which we will extend here, using the results of ref.\cite{fujii_commuting_2017}.
+We denote the above model and parameters by $\IBM({\boldsymbol \theta}) \coloneqq \IBM(\boldsymbol\alpha, \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma})$. We choose this structure in order to easily recover two more well known circuit classes, namely Instantaneous Quantum Polynomial Time\cite{shepherd_temporally_2009} ($\IQP$) circuits, and the shallowest depth ($p=1$) version of the Quantum Approximate Optimisation Algorithm\cite{farhi_quantum_2014}, ($\QAOA$). $\IQP$ circuits are named due to the commuting structure of the unitary $U_z$,  and $\QAOA$\cite{farhi_quantum_2014} was originally developed as an approximate version of the Quantum Adiabatic Algorithm\cite{farhi_quantum_2000}. Both of these classes of circuits, are known to demonstrate quantum supremacy to varying degrees\cite{bremner_classical_2011, bremner_average-case_2016, farhi_quantum_2016, bremner_achieving_2017}, which we extend here, using the results of ref.\cite{fujii_commuting_2017}.
 
 These classes can be recovered by setting the parameters of an $\IBM$ as follows:
 
@@ -81,7 +81,7 @@ the total variation ($\TV$) metric as a benchmark:
     \TV(p_{\boldsymbol\theta}, \pi) \coloneqq \frac{1}{2}\sum_{\mathbf{x}}|p_{\boldsymbol\theta}(\mathbf{x}) - \pi(\mathbf{x})| \label{total_variation}
 \end{align}
 
-\noindent This is a particularly strong metric, in the sense that convergence in $\TV$ is one of the strongest notions of convergence in probability. The cost functions we use are typically easier to deal with than $\TV$, and we remark on their connections. One of the most common cost functions used to train generative models is the Kullback-Leibler ($\KL$) divergence. The $\KL$ divergence is also relatively strong, in the sense that it upper bounds $\TV$ through Pinsker's inequality. Unfortunately, this means it is difficult to compute in terms of sample complexity; neither its gradient, nor the $\KL$ divergence itself can be evaluated efficiently when training parameterised circuits \cite{liu_differentiable_2018}.
+\noindent This is a particularly strong metric, for reasons we detail later. The cost functions we use are typically easier to deal with than $\TV$, and we remark on their connections. One of the most common cost functions used to train generative models is the Kullback-Leibler ($\KL$) divergence. The $\KL$ divergence is also relatively strong, in the sense that it upper bounds $\TV$ through Pinsker's inequality. Unfortunately, this means it is difficult to compute in terms of sample complexity; neither its gradient, nor the $\KL$ divergence itself can be evaluated efficiently when training parameterised circuits \cite{liu_differentiable_2018}.
 
 The first efficient gradient method to train Born machines was proposed by ref.\cite{liu_differentiable_2018}. 
 %The key realisation is that the $\KL$ divergence is perhaps \textit{too strong} of a cost function, and we must settle for a weaker one. 
@@ -92,7 +92,7 @@ The idea is to use the \textit{maximum mean discrepancy} ($\MMD$) to define the 
 
 \noindent The $\MMD$ has some very favourable properties; it is a metric on the space of probability distributions, and it is relatively easy to compute. The function, $\kappa$ in \eqref{mmdexact} is a \textit{kernel function}, a measure of similarity between points in the sample space $ \mathbf{x}\in\mathcal{X}^n$. A popular choice for this function is the Gaussian mixture kernel\cite{liu_differentiable_2018}:
 \begin{align}
-    \kappa_G(\mathbf{x}, \mathbf{y}) \coloneqq  \frac{1}{c}\sum_{i=1}^c\exp\left(-\frac{||\mathbf{x}-\mathbf{y}||^2_2}{2\sigma_i^2}\right) \label{gaussiankernel}
+    \kappa_G(\mathbf{x}, \mathbf{y}) \coloneqq  \frac{1}{c}\sum_{i=1}^c\exp\left(-\frac{||\mathbf{x}-\mathbf{y}||^2_2}{2\sigma_i}\right) \label{gaussiankernel}
 \end{align}
 
 The parameters, $\sigma_i$, are \emph{bandwidths} which determine the scale at which the samples are compared, and $||\cdot||_2$ is the $\ell_2$ norm.
@@ -112,7 +112,7 @@ The next required ingredient is the gradient of the cost function. For the $\MMD
     - \underset{\substack{\mathbf{a} \sim p^-_{\theta_k}\\ \mathbf{y} \sim \pi}}{2\mathbb{E}}(\kappa(\mathbf{a}, \mathbf{y}))  +\underset{\substack{\mathbf{b} \sim p^+_{\theta_k}\\ \mathbf{y} \sim \pi}}{2\mathbb{E}}(\kappa(\mathbf{b}, \mathbf{y}))\label{mmdgradient}
 \end{multline}
 
-\noindent where $p^{\pm}_{\theta_k}$ are generated by running the following auxiliary circuits\cite{mitarai_quantum_2018, schuld_evaluating_2018} \textit{for each} 
+\noindent where $p^{\pm}_{\theta_k}$ are output distributions generated by running the following auxiliary circuits\cite{mitarai_quantum_2018, schuld_evaluating_2018} \textit{for each} 
 unitary gate, $U_k(\theta_k)$:
 
 \begin{align}
@@ -204,11 +204,12 @@ We use the discrete version of the Stein discrepancy\cite{yang_goodness--fit_201
 where $\neg_i$ flips the $i^{th}$ element of the binary vector $\mathbf{x}$. Fortunately, the discretisation procedure is relatively straightforward (necessary definitions and proofs in \appref{supp_matt:stein_discrepenancy}).
 The discrepancy is derived\cite{liu_kernelized_2016, gorham_measuring_2015} from the (discrete) Stein Identity\cite{yang_goodness--fit_2018}, given by:
 \begin{align}
-    \underset{\mathbf{x}\sim \pi}{\mathbb{E}}[\mathcal{A}_\pi \phi(\mathbf{x})]= \mathbb{E}_{\mathbf{x} \sim \pi}\left[\mathbf{s}_\pi(\mathbf{x})\phi(\mathbf{x}) - \Delta_{\mathbf{x}} \phi(\mathbf{x})\right] = 0 
+    \underset{\mathbf{x}\sim \pi}{\mathbb{E}}[\mathcal{A}_\pi \phi(\mathbf{x})]&= \underset{\mathbf{x} \sim \pi}{\mathbb{E}}\left[\mathbf{s}_\pi(\mathbf{x})\phi(\mathbf{x}) - \Delta_{\mathbf{x}} \phi(\mathbf{x})\right] = 0 
     \label{complexdiscretesteinidentity}
+    \\ \mathcal{A}_\pi \phi(\mathbf{x}) &= \mathbf{s}_\pi(\mathbf{x})\phi(\mathbf{x}) - \Delta_{\mathbf{x}} \phi(\mathbf{x})
 \end{align}
 
-\noindent where $\underset{\mathbf{x}\sim \pi}{\mathbb{E}}$ denotes the expectation value over the distribution, $\pi$. This holds for any function $\phi: \mathcal{X}^n\rightarrow \mathbb{C}$, and a probability mass function $\pi$ on $\mathcal{X}^n$. The function, $s_\pi(\mathbf{x}) = \Delta_\mathbf{x}\log(\pi(\mathbf{x}))$ is the \textit{Stein score} function of the distribution $\pi$, and $\mathcal{A}_\pi$ is a so-called \textit{Stein operator} of $\pi$. The functions that obey, \eqref{complexdiscretesteinidentity}, are said to be in the \textit{Stein class} of the distribution $\pi$.  Now, the $\SD$ cost function can be written in a kernelised form\cite{liu_kernelized_2016, yang_goodness--fit_2018}, similarly to the $\MMD$:
+\noindent where $\underset{\mathbf{x}\sim \pi}{\mathbb{E}}$ denotes the expectation value over the distribution, $\pi$. This holds for any function $\phi: \mathcal{X}^n\rightarrow \mathbb{C}$, and a probability mass function $\pi$ on $\mathcal{X}^n$. The function, $s_\pi(\mathbf{x}) = \Delta_\mathbf{x}\log(\pi(\mathbf{x}))$ is the \textit{Stein score} function of the distribution $\pi$, and $\mathcal{A}_\pi$ is a so-called \textit{Stein operator} of $\pi$. Now, the $\SD$ cost function can be written in a kernelised form\cite{liu_kernelized_2016, yang_goodness--fit_2018}, similarly to the $\MMD$:
 \begin{align}
     \mathcal{L}_{\SD}(p_{\boldsymbol\theta}, \pi)\coloneqq \mathbb{E}_{\mathbf{x}, \mathbf{y}\sim p_{\boldsymbol\theta}}\left[\kappa_\pi(\mathbf{x}, \mathbf{y})\right]\label{steindiscrepancybornmachine}
 \end{align}
@@ -223,14 +224,15 @@ Just as above, the gradient (derived in \appref{supp_matt:stein_discrepenancy}) 
     \frac{\partial \mathcal{L}_{\SD}}{\partial \theta_k} = \underset{\substack{\mathbf{x} \sim p^-_{\boldsymbol\theta} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p^+_{\boldsymbol\theta} \\ \mathbf{y}\sim p_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})]\\ +\underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta}\\ \mathbf{y}\sim p^-_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] - \underset{\substack{\mathbf{x} \sim p_{\boldsymbol\theta} \\ \mathbf{y}\sim p^+_{\boldsymbol\theta}}}{\mathbb{E}}[\kappa_\pi(\mathbf{x}, \mathbf{y})] \label{steingradient}
 \end{multline}
 
-\noindent Complementary to this, we show that almost every term in \eqref{steindiscrepancybornmachine} and \eqref{steingradient} can be computed efficiently, even when using the quantum kernel in \eqref{quantumkernel}, $\kappa_Q$, in \eqref{weightedkernelbornmachine}. This is, with the exception of the score function $s_\pi$ with respect to the data distribution. This is because the score has an explicit dependence on the data distribution, $\pi$. If we are given oracle access to the probabilities, $\pi(\mathbf{y})$, then there is no issue and $\SD$ will be computable. Unfortunately, in any practical application this will not be the case. To deal with such a scenario, we give two approaches to approximate the score via samples from $\pi$. The first of these we call the `Identity' method since it inverts Stein's identity\cite{li_gradient_2018}. We refer to the second as the `Spectral' method since it uses a spectral decomposition\cite{shi_spectral_2018} of a kernel to approximate the score. We will only use the Spectral method in training the $\IBM$ in the numerical results \figref{fig:MMDvSinkvStein3}, since the Identity method does not give an immediate out-of-sample method to compute the score. Details of these methods can be found in \appref{supp_matt:stein_discrepenancy}. Notice that even with the difficulty in computing the score, the $\SD$ is still more suitable than the $\KL$ divergence to train these models, since the latter requires computing the \textit{circuit} probabilities, $p_{\boldsymbol\theta}(\mathbf{x})$, which is in general intractable, and so could not be computed for \textit{any} dataset. 
+\noindent Complementary to this, we show that almost every term in \eqref{steindiscrepancybornmachine} and \eqref{steingradient} can be computed efficiently, even when using the quantum kernel in \eqref{quantumkernel}, $\kappa_Q$, in \eqref{weightedkernelbornmachine}. That is, with the exception of the score function $s_\pi$ with respect to the data distribution. The score contains an explicit dependence on the data distribution, $\pi$. If we are given oracle access to the probabilities, $\pi(\mathbf{y})$, then there is no issue and $\SD$ will be computable. Unfortunately, in any practical application this will not be the case. To deal with such a scenario, we give two approaches to approximate the score via samples from $\pi$. The first of these we call the `Identity' method since it inverts Stein's identity\cite{li_gradient_2018}. We refer to the second as the `Spectral' method since it uses a spectral decomposition\cite{shi_spectral_2018} of a kernel to approximate the score. We will only use the Spectral method in training the $\IBM$ in the numerical results in \figref{fig:MMDvSinkvStein3}, since the Identity method does not give an immediate out-of-sample method to compute the score. Details of these methods can be found in \appref{supp_matt:stein_discrepenancy}. Notice that even with the difficulty in computing the score, the $\SD$ is still more suitable than the $\KL$ divergence to train these models, since the latter requires computing the \textit{circuit} probabilities, $p_{\boldsymbol\theta}(\mathbf{x})$, which is in general intractable, and so could not be computed for \textit{any} dataset. 
 
 
 \subsection*{Sinkhorn Divergence Training \label{ssec:sinkhorntrainingofibm}}
 The second cost function we consider is the so-called \textit{Sinkhorn Divergence} ($\SH$). This is a relatively new method to compare probability distributions \cite{ramdas_wasserstein_2015, genevay_learning_2017, feydy_interpolating_2018} , defined by the following:
-\begin{align}
-    \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) \coloneqq \OT^c_\epsilon(p_{\boldsymbol\theta}, \pi) - \frac{1}{2} \OT^c_\epsilon(p_{\boldsymbol\theta}, p_{\boldsymbol\theta}) -\frac{1}{2}\OT^c_\epsilon(\pi, \pi) \label{sinkhorndivergence}
-\end{align}
+\begin{multline}
+    \mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) \coloneqq\\
+    \OT^c_\epsilon(p_{\boldsymbol\theta}, \pi) - \frac{1}{2} \OT^c_\epsilon(p_{\boldsymbol\theta}, p_{\boldsymbol\theta}) -\frac{1}{2}\OT^c_\epsilon(\pi, \pi) \label{sinkhorndivergence}
+\end{multline}
 \begin{multline}
     \OT^c_\epsilon(p_{\boldsymbol\theta}, \pi) \coloneqq \\
       \min\limits_{U \in \mathcal{U}(p_{\boldsymbol\theta}, \pi)}\left(\sum\limits_{\substack{(\mathbf{x}, \mathbf{y})\\ \in \mathcal{X}^d\times\mathcal{Y}^d}} c(\mathbf{x}, \mathbf{y})U(\mathbf{x}, \mathbf{y}) + \epsilon \KL(U|p_{\boldsymbol\theta}\otimes \pi)\right) \label{wassersteinregularised}
@@ -238,13 +240,14 @@ The second cost function we consider is the so-called \textit{Sinkhorn Divergenc
 
 \noindent where $\epsilon \geq 0 $ is a regularisation parameter, and $\mathcal{U}(p_{\boldsymbol\theta}, \pi)$ is the set of all \textit{couplings} between $p_{\boldsymbol\theta}$ and $\pi$, i.e.\@ the set of all joint distributions, whose marginals with respect to $\mathbf{x}, \mathbf{y}$ are $p_{\boldsymbol\theta}(\mathbf{x}), \pi(\mathbf{y})$ respectively. 
 The above cost function, $\mathcal{L}_{\SH}^\epsilon$, is particularly favourable as a candidate because of its relationship to the theory of \textit{optimal transport}\cite{villani_optimal_2009} ($\OT$),  an old method to compare probability distributions. It has become a major tool used to train models in the classical domain, for example with GANs\cite{arjovsky_wasserstein_2017} through a restriction of optimal transport called the Wasserstein metric, which is derived from
-$\OT$, when the cost, $c$, is chosen to be a metric on the space of $\mathcal{X}^n$.
+$\OT$, when the cost ($c(\mathbf{x}, \mathbf{y})$), is chosen to be a metric on the space of $\mathcal{X}^n$.
 
 We would like to use $\OT$ \textit{itself} to train generative models, due to its metric properties. Unfortunately, $\OT$ has high computational cost and exponential sample complexity\cite{dudley_speed_1969}. For this reason, the Sinkhorn divergence was proposed in refs. \cite{ramdas_wasserstein_2015, genevay_learning_2017, feydy_interpolating_2018} to \textit{interpolate} between $\OT$ and the $\MMD$ as a function of the regularisation parameter, $\epsilon$ in \eqref{wassersteinregularised}. In particular, for the two extreme values for $\epsilon$, we recover\cite{ramdas_wasserstein_2015} both unregularised $\OT$, and the $\MMD$:
 \begin{align}
-&\epsilon \rightarrow 0 :\mathcal{L}_{\SH}^0(p_{\boldsymbol\theta}, \pi)\rightarrow \OT_0^c(p_{\boldsymbol\theta}, \pi)\\
-&\epsilon \rightarrow \infty:
-\mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) \rightarrow  \MMD(p_{\boldsymbol\theta}, \pi) : \kappa(\mathbf{x}, \mathbf{y}) = -c(\mathbf{x}, \mathbf{y})
+&\underline{\epsilon \rightarrow 0}: \nonumber\\
+&\mathcal{L}_{\SH}^0(p_{\boldsymbol\theta}, \pi)\rightarrow \OT_0^c(p_{\boldsymbol\theta}, \pi)\\
+&\underline{\epsilon \rightarrow \infty}:\nonumber\\
+&\mathcal{L}_{\SH}^\epsilon(p_{\boldsymbol\theta}, \pi) \rightarrow  \MMD(p_{\boldsymbol\theta}, \pi) : \kappa(\mathbf{x}, \mathbf{y}) = -c(\mathbf{x}, \mathbf{y})
 \end{align}
 Now, as before, we need a gradient of the $\mathcal{L}_{\SH}$ with respect to the parameters, given by:
 \begin{align}
@@ -253,16 +256,16 @@ Now, as before, we need a gradient of the $\mathcal{L}_{\SH}$ with respect to th
     -\underset{\substack{\mathbf{x} \sim p_{\theta_k^+}  }}{\mathbb{E}}[\varphi(\mathbf{x})] \label{sinkhorngradient}
 \end{align}
 
-Where $\varphi(\mathbf{x})$ is a function which depends on the optimal solutions found to the regularised $\OT$ problem in \eqref{wassersteinregularised}. See \appref{supp_matt:sinkhorn} for more details on the Sinkhorn divergence, and its gradient.
+\noindent where $\varphi(\mathbf{x})$ is a function which depends on the optimal solutions found to the regularised $\OT$ problem in \eqref{wassersteinregularised}. See \appref{supp_matt:sinkhorn} for more details on the Sinkhorn divergence, and its gradient.
 
 % \end{onecolumn}
 \subsubsection*{Sinkhorn Complexity}
 The sample complexity of the Sinkhorn Divergence is of crucial interest to us; we claim that the $\TV$ and the $\KL$ are not suitable directly as cost functions due to the difficulty of computing the outcome probabilities of quantum circuits efficiently. We now motivate why the $\MMD$ is a weak cost function, and why the Sinkhorn Divergence should be used as an alternative. This will depend critically on the regularisation parameter $\epsilon$, which allows a smooth interpolation between the $\OT$ metric and the $\MMD$ one. 
 
-Firstly, we will address the computability of $\mathcal{L}_{\SH}$ and we find, due to the results of ref. \cite{genevay_sample_2018}, a somewhat `optimal' value for $\epsilon$, such that the sample complexity of $\mathcal{L}_{\SH}$ looks efficient. Specifically, the mean error between $\mathcal{L}_{\SH}$ and its approximation $\hat{\mathcal{L}}_{\SH}$, computed using $M$ samples, scales as:
-\begin{align}
-     &\mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| \leq \frac{3K}{\sqrt{M}}\left(1+e^{\left(2\frac{n^2+n}{\epsilon}\right)}\right)\mathcal{O}\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)
-\end{align}
+Firstly, we will address the computability of $\mathcal{L}_{\SH}$ and we find, due to the results of ref. \cite{genevay_sample_2018}, a somewhat `optimal' value for $\epsilon$, such that the sample complexity of $\mathcal{L}_{\SH}$ looks efficient. Specifically, the mean error between $\mathcal{L}_{\SH}$ and its approximation $\hat{\mathcal{L}}_{\SH}$ for $n$ qubits, computed using $M$ samples, scales as:
+\begin{multline}
+    \mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| =\\ \mathcal{O}\left(\frac{1}{\sqrt{M}}\left(1+e^{\left(2\frac{n^2+n}{\epsilon}\right)}\right)\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)\right)
+\end{multline}
 
 \noindent Hence, by choosing $\epsilon = \mathcal{O}(n^{2})$, we get:
 \begin{align}
@@ -271,8 +274,8 @@ Firstly, we will address the computability of $\mathcal{L}_{\SH}$ and we find, d
 
 \noindent which is the same sample complexity as the $\MMD$\cite{sriperumbudur_integral_2009}, but exponentially better than that of unregularised optimal transport, which scales as $\mathcal{O}\left(1/{M}^{1/n}\right)$\cite{dudley_speed_1969}. A similar result can be derived using a concentration bound\cite{genevay_sample_2018}, such that with probability $1-\delta$, 
 \begin{align}
-    |\mathcal{L}_{\SH}^{O(n^{2})}  - \hat{\mathcal{L}}_{\SH}^{O(n^{2})} | 
-    = \mathcal{O}\left(\frac{1}{\sqrt{M}}\log(1/\delta)^{1/2}\right) \label{sinkhornborn_samplecomplexity_choosed_MAIN}
+    |\mathcal{L}_{\SH}^{\mathcal{O}(n^{2})}  - \hat{\mathcal{L}}_{\SH}^{\mathcal{O}(n^{2})} | 
+    = \mathcal{O}\left(\frac{n}{\sqrt{M}}\log(1/\delta)^{1/2}\right) \label{sinkhornborn_samplecomplexity_choosed_MAIN}
 \end{align}
 
 \noindent Where we have chosen the same scaling for $\epsilon$ as in \eqref{sinkhorn_expectation_sample_chosen_MAIN}. Therefore, we can choose an optimal theoretical value for the regularisation, such that $\mathcal{L}_{\SH}$ is sufficiently far from $\OT$ to be efficiently computable, but perhaps still retains some of its favourable properties. It is likely in practice however, that a much lower value of $\epsilon$ could be chosen without a blow up in sample complexity\cite{genevay_learning_2017,  genevay_sample_2018}. See \appref{supp_matt:sinkhorn} for derivations of these two results.
@@ -296,7 +299,7 @@ In contrast, the Wasserstein metric (unregularised $\OT$) provides an \textit{up
 \begin{align}
     d_{min} \TV(p_{\boldsymbol\theta}, \pi) \leq \OT^d_0(p_{\boldsymbol\theta}, \pi) \leq \text{diam}(\mathcal{X})\TV(p_{\boldsymbol\theta}, \pi) \label{tv_wasserstein_inequality}
 \end{align}
-where $\text{diam}(\mathcal{X}^n) = \max\{d(\mathbf{x}, \mathbf{y}), \mathbf{x}, \mathbf{y} \in \mathcal{X}^n\}$, $ d_{min} = \min_{x\neq y}d(\mathbf{x}, \mathbf{y})$, and $d(\mathbf{x}, \mathbf{y})$ is the metric on the space, $\mathcal{X}^n$. This arises by choosing $c = d$ and $\epsilon = 0$ in the above \eqref{wassersteinregularised}. If, for instance, we were to choose $d(\mathbf{x}, \mathbf{y})$ to be the $\ell_1$ metric between the binary vectors of length $d$(a.k.a.\@ the  Hamming distance), then we get that $ d_{min} = 1, \text{diam}(\mathcal{X}) = n$, and so:
+where $\text{diam}(\mathcal{X}^n) = \max\{d(\mathbf{x}, \mathbf{y}), \mathbf{x}, \mathbf{y} \in \mathcal{X}^n\}$, $ d_{min} = \min_{x\neq y}d(\mathbf{x}, \mathbf{y})$, and $d(\mathbf{x}, \mathbf{y})$ is the metric on the space, $\mathcal{X}^n$. This arises by choosing $c = d$ and $\epsilon = 0$ in the above \eqref{wassersteinregularised}. If, for instance, we were to choose $d(\mathbf{x}, \mathbf{y})$ to be the $\ell_1$ metric between the binary vectors of length $n$ (a.k.a.\@ the  Hamming distance), then we get that $ d_{min} = 1, \text{diam}(\mathcal{X}) = n$, and so:
 \begin{align}
      \TV(p_{\boldsymbol\theta}, \pi) \leq \OT^{\ell_1}_0(p_{\boldsymbol\theta}, \pi) \leq n \TV(p_{\boldsymbol\theta}, \pi)
 \end{align}
@@ -323,7 +326,7 @@ where $\text{diam}(\mathcal{X}^n) = \max\{d(\mathbf{x}, \mathbf{y}), \mathbf{x},
 \subsection*{Numerical Performance}
 In Figs. (\ref{fig:QvGkernel4}, \ref{fig:MMDvSinkvStein3}, \ref{fig:MMDvSink4_real}), we illustrate the superior performance of our alternative training methods, relative to total variation. A lower $\TV$ indicates the model is able to learn parameters which fit the true data more closely. $\TV$ was chosen as an objective benchmark for several reasons. Firstly, it is typically the notion of distance which is ideally required by quantum supremacy experiments for which one wants to prove hardness of classical simulation. Secondly, we use it in the definitions of quantum learning supremacy, and finally, it is one of the strongest notions of convergence in probability one can ask for, so it follows that a training procedure which can more effectively minimise $\TV$, in an efficient way, should be better for generative modelling.
 
-We train the model on Rigetti's Forest platform\cite{smith_practical_2016} using both a simulator, and real quantum hardware, the {\fontfamily{cmtt}\selectfont Aspen} QPU. \figref{fig:QvGkernel4} illustrates the training of the model using the Gaussian \eqref{gaussiankernel} versus the Quantum kernel for 4 qubits, \eqref{quantumkernel}, and it can be seen the quantum kernel outperforms the classical kernel relative to $\TV$. The same performance is observed for the Stein discrepancy, and the Sinkhorn divergence in \figref{fig:MMDvSinkvStein3}, relative to the $\MMD$ with a Gaussian kernel and shown to persist even on the QPU, \figref{fig:MMDvSink4_real}.
+We train the model on Rigetti's Forest platform\cite{smith_practical_2016} using both a simulator, and real quantum hardware, the {\fontfamily{cmtt}\selectfont Aspen} QPU. \figref{fig:QvGkernel4} illustrates the training of the model using the Gaussian (\eqref{gaussiankernel}) versus the Quantum kernel(\eqref{quantumkernel}) for 4 qubits, and we see that the quantum kernel outperforms the classical kernel relative to $\TV$. The same performance is observed for the Stein discrepancy, and the Sinkhorn divergence in \figref{fig:MMDvSinkvStein3}, relative to the $\MMD$ with a Gaussian kernel and shown to persist even on the QPU, \figref{fig:MMDvSink4_real}.
 For extra numerical result demonstrating the performance of the learning algorithms, see \appref{supp_matt:numericalresults}.
 
 \begin{figure*}[ht]
@@ -422,7 +425,7 @@ $\MMD$ [\crule[cyan]{0.2cm}{0.2cm}, \crule[yellow]{0.2cm}{0.2cm}, \crule[ForestG
     %     \caption{Qubit `line' topology in Rigetti {\fontfamily{cmtt}\selectfont Aspen-4-4Q-A} chip, using qubits, $(0, 1, 2, 7)$.}
     %     \label{subfig:4_qubit_topology_aspen_4_4q_a}
     % \end{subfigure}
-    \caption{$\MMD$ [\crule[ForestGreen]{0.2cm}{0.2cm}] vs.\@ Sinkhorn [\crule[blue]{0.2cm}{0.2cm}] for 4 qubits comparing performance on the real QPU ({\fontfamily{cmtt}\selectfont Aspen-4-4Q-A}) vs.\@ simulated behaviour on QVM ({\fontfamily{cmtt}\selectfont Aspen-4-4Q-A-qvm}) using 500 samples and a batch size of 250, learning target data [\crule[black]{0.2cm}{0.2cm}]. (a)$\TV$ Difference between training methods with regularisation parameter $\epsilon = 0.1$ (b) Final learned probabilities, (c) $\mathcal{L}^{0.1}_{\SH}$ on QVM  [\crule[blue]{0.2cm}{0.2cm}] vs.\@ QPU  [\crule[cyan]{0.2cm}{0.2cm}]. (d) $\mathcal{L}_{\MMD}$ on QVM  [\crule[ForestGreen]{0.2cm}{0.2cm}] vs.\@ QPU  [\crule[cyan]{0.2cm}{0.2cm}]. }\label{fig:MMDvSink4_real}
+    \caption{$\MMD$ [\crule[ForestGreen]{0.2cm}{0.2cm}, \crule[yellow]{0.2cm}{0.2cm}] vs.\@ Sinkhorn [\crule[blue]{0.2cm}{0.2cm}, \crule[cyan]{0.2cm}{0.2cm}] for 4 qubits comparing performance on the real QPU ({\fontfamily{cmtt}\selectfont Aspen-4-4Q-A}) vs.\@ simulated behaviour on QVM ({\fontfamily{cmtt}\selectfont Aspen-4-4Q-A-qvm}) using 500 samples and a batch size of 250, learning target data [\crule[black]{0.2cm}{0.2cm}]. (a)$\TV$ Difference between training methods with regularisation parameter $\epsilon = 0.1$ (b) Final learned probabilities, (c) $\mathcal{L}^{0.1}_{\SH}$ on QVM  [\crule[cyan]{0.2cm}{0.2cm}] vs.\@ QPU  [\crule[blue]{0.2cm}{0.2cm}]. (d) $\mathcal{L}_{\MMD}$ on QVM  [\crule[yellow]{0.2cm}{0.2cm}] vs.\@ QPU  [\crule[ForestGreen]{0.2cm}{0.2cm}]. }\label{fig:MMDvSink4_real}
 \end{figure*}
 
 
@@ -439,20 +442,20 @@ The \emph{intuition} behind the second point is the following. If our $\IBM$ mod
 learn a target distribution $\pi$ which has %is believed to itself 
 quantum supremacy, 
 by providing a quantum circuit $C$ close enough to $\pi$ 
-(ie below a threshold error in total variation),
+(i.e.\@ below a threshold error in total variation),
 then the model would have demonstrated something which is classically unfeasible. Else there would exist a efficient classical algorithm 
 which can get close to $\pi$ which contradicts hardness.
 
 The first point does not completely fit that intuition. 
 For one thing, hardness is not known to hold for the required notion of additive error 
-(i.e.\@ total variation distance) but only for multiplicative error. Also, even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a model which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
+(i.e.\@ total variation distance) but only for multiplicative error. Also, even though the model is more \textit{expressive} than any classical model\cite{du_expressive_2018}, this does not imply that it could actually \textit{learn} a hard distribution. On the other hand, it is easy to see why the converse would be true, if the $\IBM$ could learn a distribution which is hard to sample from classically, the underlying circuit must have, at some point, reached a circuit configuration for which the output distribution is hard to classically sample.
 
-We can address point 1. informally (see \appref{supp_matt:hardness} for the formal statements and proof) in three steps:
+We can address the first point informally (see \appref{supp_matt:hardness} for the formal statements and proof) in three steps:
 \begin{itemize}
     \item If the initial parameters of the model $\{\boldsymbol \alpha\} = \{J_{ij}, b_k\}\in\{0,\frac{\pi}{8}, \dots, \frac{7\pi}{8}\}$ and final measurement angles are chosen such that $U_f \left( \mathbf{\Gamma}, \mathbf{\Delta}, \mathbf{\Sigma} \right) = H^{\otimes n}$, then the resulting $\IBM$ circuit class will be hard to simulate up to an additive error of $1/384$ in total variation distance, subject to a conjecture relating to the hardness of computing the Ising partition function \cite{bremner_average-case_2016}.
     \item If certain configurations of the parameters are chosen to be either of the form, $(2l+1)\pi/kd$, where $l, d$ are integers, and $k$ is a number which depends on the circuit family, or in the form $2\pi\nu$, where $\nu$ is irrational, then the resulting class of circuits will be hard to sample from classically, up to a multiplicative error, in the worst case.
     \item The circuits produced at each epoch as a result of the gradient updates will each result in a hard circuit class as long as the gradient updates are not chosen carelessly. In each epoch, if the update step is constrained in a way that the new value of the parameter 
-$\theta^{d+1}_k= \theta_k^{d} - \eta\partial_{\theta_k}\mathcal{L}_B$ does not become rational, then the updated circuits will also belong to a class which is hard to simulate. This is because the updates can simply be absorbed into the original gates, to give a circuit which has the same form. This holds also for the gradient shifted circuits in\eqref{circuit:gradientplusminuscircuit} since these correspond to circuits whose parameters are updated as follows: $\theta^{d, \pm}_k \leftarrow \theta_k^{d} \pm \pi/2$.
+$\theta^{d+1}_k= \theta_k^{d} - \eta\partial_{\theta_k}\mathcal{L}_B$ does not become rational, then the updated circuits will also belong to a class which is hard to simulate (a similar result can be shown for the case where the parameters are updated to keep within the form of $(2l+1)\pi/kd$).  This is because the updates can simply be absorbed into the original gates, to give a circuit which has the same form. This holds also for the gradient shifted circuits in \eqref{circuit:gradientplusminuscircuit} since these correspond to circuits whose parameters are updated as follows: $\theta^{d, \pm}_k \leftarrow \theta_k^{d} \pm \pi/2$.
 \end{itemize}
 
 We now provide definitions informally to match the requirements of the second point. We adapt definitions from distribution learning theory\cite{kearns_learnability_1994} for this purpose. Specifically, we say that a generative QML Algorithm, $\mathcal{A}\in \BQP$ (with a small abuse of notation) has %demonstrated 
@@ -465,12 +468,12 @@ to output, with high probability, a \textit{Generator},
 $\GEN_{D'}$, for a distribution $D'$, 
 such that $D'$ is close to $D \in \mathcal{D}_n$ with respect to the metric $d$. 
 For the precise definitions of learnability we employ see \appref{supp_mat:superioritydefinitions}.
-This framework is very similar to that of, and inspired by, probably approximately correct (PAC) learning, which has been well studied in the quantum case\cite{arunachalam_survey_2017}, but applies more closely to the task of supervised learning. It is known that in certain cases, the use of quantum computers can be beneficial to PAC learning, but not generically\cite{arunachalam_quantum_2019}. Based on this, it is possible that there exist some classes of distributions which cannot be efficiently learned by classical computers ($\BPP$ algorithms), but which could be learned by quantum devices ($\BQP$ algorithms). The motivation for this is exactly rooted in the question of quantum supremacy, and illustrated crudely in \figref{subfig:qlsillustration}. 
+This framework is very similar to that of, and inspired by, probably approximately correct (PAC) learning, which has been well studied in the quantum case\cite{arunachalam_survey_2017}, but it applies more closely to the task of generative modelling. It is known that in certain cases, the use of quantum computers can be beneficial to PAC learning, but not generically\cite{arunachalam_quantum_2019}. Based on this, it is possible that there exist some classes of distributions which cannot be efficiently learned by classical computers ($\BPP$ algorithms), but which could be learned by quantum devices ($\BQP$ algorithms). The motivation for this is exactly rooted in the question of quantum supremacy, and illustrated crudely in \figref{subfig:qlsillustration}. 
 
 An initial attempt at QLS is as follows. As mentioned above, if random $\IQP$ circuits could be classically simulated to within a $\TV$ error of $\epsilon = 1/384$\cite{bremner_average-case_2016} in the worst case (with high probability over the choice of circuit), this would imply unlikely consequences for complexity theory. Now, if a generative quantum model was able to achieve a closeness in $\TV$ less than this constant value, perhaps by minimising one of the upper bounds in \eqref{tv_wasserstein_sinkhorn_inequality}, then we could claim this model had achieved something classically intractable, and could not be classically simulated either. For example if we make the following assumptions,
 \begin{enumerate}
     \item Assume the $\IBM$ could achieve a $\TV < \delta$ to a target $\IQP$ distribution. 
-    \item Assume a classical probabilistic algorithm, $\mathcal{C}$, could output a distribution $q$ in polynomial time which was $\gamma$ close in $\TV$ to the $\IBM$, i.e.\@ it could simulate it efficiently.
+    \item Assume a classical probabilistic algorithm, $\mathsf{C}$, could output a distribution $q$ in polynomial time which was $\gamma$ close in $\TV$ to the $\IBM$, i.e.\@ it could simulate it efficiently.
 \end{enumerate}
 Then:
 \begin{align}
@@ -480,7 +483,7 @@ Then:
 &\leq \delta+\gamma \equiv \epsilon
 \end{align}
 
-\noindent where the third line follows from the triangle inequality. Therefore $\mathcal{C}$ could simulate an $\IQP$ distribution also, and we arrive at a contradiction. The major open question left by this work is whether QLS is possible at all; can a quantum model outperform all classical ones in generative learning?
+\noindent where the third line follows from the triangle inequality. Therefore $\mathsf{C}$ could simulate an $\IQP$ distribution also, and we arrive at a contradiction. The major open question left by this work is whether QLS is possible at all; can a quantum model outperform all classical ones in generative learning?
 
 
 \begin{figure*}[ht]
@@ -502,14 +505,14 @@ Then:
 \caption{
 %(a) Hybrid training procedure of Ising Born Machine. 
 (a) Illustration of a learning procedure using a Generator. The algorithm 
-$\mathcal A$ is given access to $\GEN_D$, which provides samples, $\mathbf{x}\sim D$, and must output a Generator for a distribution which is close to the original. We allow the target generator to be classical, hence it may take as input a string of random bits, of size polynomial in $n$, $r(n)$, if not able to generate its own randomness. (b) Crude illustration of quantum learning supremacy. No classical algorithm, $\mathcal{C}_i$, should be able to achieve the required closeness in total variation to the target distribution, but the $\IBM$ (or similar) should be able to, for \textit{some} class of target distributions. There should be some path in the parameter space of the $\IBM$, $\boldsymbol\theta$, which achieves this.
+$\mathcal A$ is given access to $\GEN_D$, which provides samples, $\mathbf{x}\sim D$, and must output a Generator for a distribution which is close to the original. We allow the target generator to be classical, hence it may take as input a string of random bits, of size polynomial in $n$, $r(n)$, if not able to generate its own randomness. (b) Crude illustration of quantum learning supremacy. No classical algorithm, $\mathsf{C}_i$, should be able to achieve the required closeness in total variation to the target distribution, but the $\IBM$ (or similar) should be able to, for \textit{some} class of target distributions. There should be some path in the parameter space of the $\IBM$, $\boldsymbol\theta$, which achieves this.
 }\label{fig:learning_supremacy}
 \end{figure*}
 
 \subsection*{Quantum Compiling}
 As a concrete application of such a model outside the scope of classical generative modelling, we can use the $\IBM$ training to perform a type of `weak' quantum circuit compilation. To the best of our knowledge, this is a novel instance of applying techniques in generative modelling to quantum information processing tasks. There are also potentially other areas which could be studied using these tools, but this is beyond the scope of this work.
 
-The major objective in this area is to compile a given target unitary, $U$, into one which consists exclusively of operations available to the native hardware of the Quantum Computer in question. For example, in the case of Rigetti's Aspen QPU, the native gates are the following set: $\{R_x(\pm \pi/2), R_z(\theta), CZ\}$ \cite{smith_practical_2016, khatri_quantum-assisted_2018}, and any unitary which a user wishes to implement must be compiled into a unitary $V$ which contains only these ingredients. Potential solutions to this problem\cite{jones_quantum_2018, khatri_quantum-assisted_2018} involve approximating the target unitary, $U$ itself by assuming $V$ is a parametric circuit built from the native gates which can be trained by some optimisation strategy. We adopt a similar view here, but we do not require any extra quantum resources to perform the compilation. With this limitation, we make a tradeoff in that we are not guaranteed to apply \textit{the same} target unitary, only that the output distribution will be somewhat close to that produced by the target. Clearly this is a much weaker constraint than the task of compiling directly one unitary into another, since many unitaries may give rise to the same distribution but it is much closer to the capabilities of near term devices. To illustrate this application, we train an $\IBM$ to learn the output distribution of a random $\IQP$ circuit when restricted to a $\QAOA$ architecture itself using $\mathcal{L}_{\SH}$ as a cost function.
+The major objective in this area is to compile a given target unitary, $U$, into one which consists exclusively of operations available to the native hardware of the quantum computer in question. For example, in the case of Rigetti's Aspen QPU, the native gates are the following set: $\{R_x(\pm \pi/2), R_z(\theta), CZ\}$ \cite{smith_practical_2016, khatri_quantum-assisted_2018}, and any unitary which a user wishes to implement must be compiled into a unitary $V$ which contains only these ingredients. Potential solutions to this problem\cite{jones_quantum_2018, khatri_quantum-assisted_2018} involve approximating the target unitary, $U$ itself by assuming $V$ is a parametric circuit built from the native gates which can be trained by some optimisation strategy. We adopt a similar view here, but we do not require any extra quantum resources to perform the compilation. With this limitation, we make a tradeoff in that we are not guaranteed to apply \textit{the same} target unitary, only that the output distribution will be somewhat close to that produced by the target. Clearly this is a much weaker constraint than the task of compiling directly one unitary into another, since many unitaries may give rise to the same distribution but it is much closer to the capabilities of near term devices. To illustrate this application, we train an $\IBM$ to learn the output distribution of a random $\IQP$ circuit when restricted to a $\QAOA$ architecture itself using $\mathcal{L}_{\SH}$ as a cost function.
 \begin{multline}
     \IBM\left(\left\{J^{\QAOA}_{ij}, b^{\QAOA}_k\right\}, \left\{\Gamma_k = \frac{\pi}{4}\right\}, 0,  0\right) \\
     \overset{Compile}{\rightarrow}   \IBM\left(\left\{J^{\IQP}_{ij}, b^{\IQP}_k\right\}, \left\{\Gamma_k = \frac{\pi}{2\sqrt{2}}\right\}, \right.\\0, \left.\left\{\Sigma_k = \frac{\pi}{2\sqrt{2}}\right\}\right)
