@@ -178,7 +178,7 @@ Now,
 
 So, \eqref{samplecomplexityexpanded_supp} becomes:
 \begin{align}
-     &\mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| = \mathcal{O}\left(\frac{3K}{\sqrt{M}}\left(1+e^{\left(2\frac{n^2+n}{\epsilon}\right)}\right)\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)\right)
+     &\mathbb{E}|\mathcal{L}_{\SH}^\epsilon - \hat{\mathcal{L}}_{\SH}^\epsilon| = \mathcal{O}\left(\frac{1}{\sqrt{M}}\left(1+e^{\left(2\frac{n^2+n}{\epsilon}\right)}\right)\left(1+\frac{1}{\epsilon^{\lfloor n/2\rfloor}}\right)\right)
 \end{align}
 
 
@@ -195,7 +195,7 @@ So, \eqref{samplecomplexityexpanded_supp} becomes:
 Since, $\kappa = 2n^2+n = \mathcal{O}(n^{2})$. Now, clearly, due to the asymptotic behaviour of the Sinkhorn divergence, we would like to choose $\epsilon$ sufficiently large in order to remove as much dependence on the dimension, $n$, as possible. This is because, in our case, the dimension of the space is equivalent to the number of qubits, and hence to derive a favourable sample complexity, we would hope for the dependence on $n$ to be polynomial in the number of qubits. By examining, \eqref{sinkhornbornsamplecomplexity_supp}, we could see that a good choice might be $\epsilon = \mathcal{O}(n^{2})$. In this case, we get:
 \begin{align}
     |\mathcal{L}_{\SH}^{\mathcal{O}(n^{2})} - \hat{\mathcal{L}}_{\SH}^{\mathcal{O}(n^{2})}| 
-    = &\mathcal{O}\left(\frac{1}{\sqrt{M}}\left[\left(1+\frac{1}{n^{\lfloor n/2\rfloor}}\right)\right.\right.+ \left.\left.n\sqrt{2\log\frac{1}{\delta}}\right]\right) \label{sinkhornbornsamplecomplexitychoosed_supp}
+    = \mathcal{O}\left(\frac{1}{\sqrt{M}}\left[\left(1+\frac{1}{n^{\lfloor n/2\rfloor}}\right)\right.\right.+ \left.\left.n\sqrt{2\log\frac{1}{\delta}}\right]\right) \label{sinkhornbornsamplecomplexitychoosed_supp}
 \end{align}
 
 
